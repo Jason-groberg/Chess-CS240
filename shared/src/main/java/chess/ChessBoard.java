@@ -8,7 +8,7 @@ import java.util.Arrays;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {e
+public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
 
