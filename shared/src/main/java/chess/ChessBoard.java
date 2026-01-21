@@ -3,6 +3,7 @@ package chess;
 import java.util.Arrays;
 import java.util.Objects;
 
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -59,5 +60,6 @@ public class ChessBoard {
      */
     public void resetBoard() {
         board = new ChessPiece[8][8];
+
     }
 }
