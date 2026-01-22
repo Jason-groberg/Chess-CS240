@@ -50,7 +50,6 @@ public class LegalMoves {
                     }
                     curr_row += move.getDY();
                     curr_col += move.getDX();
-
                 }
                 else {
                     if (square.getTeamColor() != piece.getTeamColor()) {
@@ -63,6 +62,16 @@ public class LegalMoves {
             }
         }
         return legalMoves;
+    }
+
+    public static Collection<ChessMove> pawn_promotion(ChessPosition startposition, ChessPosition promotion_square) {
+        ArrayList<ChessMove> promotion_moves = new ArrayList<>();
+        EnumSet<ChessPiece.PieceType> types = EnumSet.of(ChessPiece.PieceType.ROOK,ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP);
+        for(ChessPiece.PieceType type : types) {
+            ChessMove promotion_move = new ChessMove(startposition, promotion_square, type);
+            promotion_moves.add(promotion_move);
+        }
+        return promotion_moves;
     }
 
     // returns a list of all legal moves given piece and position
@@ -125,14 +134,7 @@ public class LegalMoves {
                         // pawn is on row 7 and can promote
                         else {
                             ChessPosition promotion_square = new ChessPosition(curr_row + 1, curr_col);
-                            ChessMove promotion_move = new ChessMove(position, promotion_square, ChessPiece.PieceType.QUEEN);
-                            ChessMove promotion_move1 = new ChessMove(position, promotion_square, ChessPiece.PieceType.ROOK);
-                            ChessMove promotion_move2 = new ChessMove(position, promotion_square, ChessPiece.PieceType.KNIGHT);
-                            ChessMove promotion_move3 = new ChessMove(position, promotion_square, ChessPiece.PieceType.BISHOP);
-                            PawnMoves.add(promotion_move);
-                            PawnMoves.add(promotion_move1);
-                            PawnMoves.add(promotion_move2);
-                            PawnMoves.add(promotion_move3);
+                            PawnMoves.addAll(pawn_promotion(position, promotion_square));
                         }
                     }
                 }
@@ -151,14 +153,7 @@ public class LegalMoves {
                             else {
                                 if (square.getTeamColor() != piece.getTeamColor()) {
                                     ChessPosition promotion_square = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
-                                    ChessMove promotion_move = new ChessMove(position, promotion_square, ChessPiece.PieceType.QUEEN);
-                                    ChessMove promotion_move1 = new ChessMove(position, promotion_square, ChessPiece.PieceType.ROOK);
-                                    ChessMove promotion_move2 = new ChessMove(position, promotion_square, ChessPiece.PieceType.KNIGHT);
-                                    ChessMove promotion_move3 = new ChessMove(position, promotion_square, ChessPiece.PieceType.BISHOP);
-                                    PawnMoves.add(promotion_move);
-                                    PawnMoves.add(promotion_move1);
-                                    PawnMoves.add(promotion_move2);
-                                    PawnMoves.add(promotion_move3);
+                                    PawnMoves.addAll(pawn_promotion(position, promotion_square));
                                 }
                             }
                         }
@@ -191,14 +186,7 @@ public class LegalMoves {
                         // black pawn is on row 1 and can promote
                         else {
                             ChessPosition promotion_square = new ChessPosition(curr_row - 1, curr_col);
-                            ChessMove promotion_move = new ChessMove(position, promotion_square, ChessPiece.PieceType.QUEEN);
-                            ChessMove promotion_move1 = new ChessMove(position, promotion_square, ChessPiece.PieceType.ROOK);
-                            ChessMove promotion_move2 = new ChessMove(position, promotion_square, ChessPiece.PieceType.KNIGHT);
-                            ChessMove promotion_move3 = new ChessMove(position, promotion_square, ChessPiece.PieceType.BISHOP);
-                            PawnMoves.add(promotion_move);
-                            PawnMoves.add(promotion_move1);
-                            PawnMoves.add(promotion_move2);
-                            PawnMoves.add(promotion_move3);
+                            PawnMoves.addAll(pawn_promotion(position, promotion_square));
                         }
                     }
                 }
@@ -217,14 +205,7 @@ public class LegalMoves {
                             else {
                                 if (square.getTeamColor() != piece.getTeamColor()) {
                                     ChessPosition promotion_square = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
-                                    ChessMove promotion_move = new ChessMove(position, promotion_square, ChessPiece.PieceType.QUEEN);
-                                    ChessMove promotion_move1 = new ChessMove(position, promotion_square, ChessPiece.PieceType.ROOK);
-                                    ChessMove promotion_move2 = new ChessMove(position, promotion_square, ChessPiece.PieceType.KNIGHT);
-                                    ChessMove promotion_move3 = new ChessMove(position, promotion_square, ChessPiece.PieceType.BISHOP);
-                                    PawnMoves.add(promotion_move);
-                                    PawnMoves.add(promotion_move1);
-                                    PawnMoves.add(promotion_move2);
-                                    PawnMoves.add(promotion_move3);
+                                    PawnMoves.addAll(pawn_promotion(position, promotion_square));
                                 }
                             }
                         }
