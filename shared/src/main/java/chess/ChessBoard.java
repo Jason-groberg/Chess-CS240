@@ -51,7 +51,6 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         return board[position.getRow() -1][position.getColumn() -1];
 
-
     }
 
     /**
@@ -59,7 +58,6 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        board = new ChessPiece[8][8];
 
     }
 }

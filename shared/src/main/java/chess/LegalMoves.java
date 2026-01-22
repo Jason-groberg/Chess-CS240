@@ -167,41 +167,139 @@ public class LegalMoves {
                 }
             }
             return KnightMoves;
-        }
-
-        else if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+        } else if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             List<ChessMove> PawnMoves = new ArrayList<>();
-            EnumSet<moves> pawn_moves_white = EnumSet.of(moves.UP, moves.UP_LEFT, moves.UP_RIGHT);
-            EnumSet<moves> pawn_moves_black = EnumSet.of(moves.DOWN, moves.DOWN_LEFT, moves.DOWN_RIGHT);
+            boolean isWhite = (piece.getTeamColor() == ChessGame.TeamColor.WHITE);
+            EnumSet<moves> pawn_moves_white = EnumSet.of( moves.UP_LEFT, moves.UP_RIGHT);
+            EnumSet<moves> pawn_moves_black = EnumSet.of(moves.DOWN_LEFT, moves.DOWN_RIGHT);
+
             //white pawn moves
-            int curr_col = position.getColumn();
-            int curr_row = position.getRow();
-            //first test to see if white pawn can move two spaces
-            if (curr_col == 2 && OutOfBounds(curr_row, curr_col + 2) && OutOfBounds(curr_row, curr_col + 1)) {
-                ChessPosition double_move = new ChessPosition(curr_row + 0, curr_col + 2);
-                ChessPosition single_move = new ChessPosition(curr_row + 0, curr_col + 1);
-                ChessPiece square2 = board.getPiece(double_move);
-                ChessPiece square1 = board.getPiece(single_move);
-                if (square2 == null && square1 == null) {
-                    ChessMove valid_move = new ChessMove(position, double_move, null);
-                    PawnMoves.add(valid_move);
-                }
-            }
-            for (moves move : pawn_moves_white) {
-                //normal one space moves and captures
-                if (OutOfBounds(curr_col + move.getDX(), curr_row + move.getDY())) {
-                    ChessPosition next = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
+            if (isWhite) {
+                int curr_col = position.getColumn();
+                int curr_row = position.getRow();
+                //first test to see if white pawn can move one space
+                if (OutOfBounds(curr_row + 1, curr_col + 0)) {
+                    ChessPosition next = new ChessPosition(curr_row + 1, curr_col + 0);
                     ChessPiece square = board.getPiece(next);
-                    //space is empty and piece can move
-                    if (square == null && move == move.UP) {
-                        ChessMove valid_move = new ChessMove(position, next, null);
-                        PawnMoves.add(valid_move);
-                    }
-                    //space is not empty, and piece captures
-                    else {
-                        if (square.getTeamColor() != piece.getTeamColor() && move != move.UP) {
+                    if (square == null) {
+                        if (curr_row < 7) {
                             ChessMove valid_move = new ChessMove(position, next, null);
                             PawnMoves.add(valid_move);
+                            //test to see if double move is open
+                            if (curr_row == 2) {
+                                ChessPosition double_next = new ChessPosition(curr_row + 2, curr_col);
+                                ChessPiece double_square = board.getPiece(double_next);
+                                if (double_square == null) {
+                                    ChessMove valid_double_move = new ChessMove(position, double_next, null);
+                                    PawnMoves.add(valid_double_move);
+                                }
+                            }
+                        }
+                        // pawn is on row 7 and can promote
+                        else {
+                            ChessPosition promotion_square = new ChessPosition(curr_row + 1, curr_col);
+                            ChessMove promotion_move = new ChessMove(position, promotion_square, ChessPiece.PieceType.QUEEN);
+                            ChessMove promotion_move1 = new ChessMove(position, promotion_square, ChessPiece.PieceType.ROOK);
+                            ChessMove promotion_move2 = new ChessMove(position, promotion_square, ChessPiece.PieceType.KNIGHT);
+                            ChessMove promotion_move3 = new ChessMove(position, promotion_square, ChessPiece.PieceType.BISHOP);
+                            PawnMoves.add(promotion_move);
+                            PawnMoves.add(promotion_move1);
+                            PawnMoves.add(promotion_move2);
+                            PawnMoves.add(promotion_move3);
+                        }
+                    }
+                }
+                //pawn captures
+                for (moves move : pawn_moves_white) {
+                    if (OutOfBounds(curr_col + move.getDX(), curr_row + move.getDY())) {
+                        ChessPosition next = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
+                        ChessPiece square = board.getPiece(next);
+                        if (square != null) {
+                            if(curr_row <7) {
+                                if (square.getTeamColor() != piece.getTeamColor()) {
+                                    ChessMove valid_move = new ChessMove(position, next, null);
+                                    PawnMoves.add(valid_move);
+                                }
+                            }
+                            else {
+                                if (square.getTeamColor() != piece.getTeamColor()) {
+                                    ChessPosition promotion_square = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
+                                    ChessMove promotion_move = new ChessMove(position, promotion_square, ChessPiece.PieceType.QUEEN);
+                                    ChessMove promotion_move1 = new ChessMove(position, promotion_square, ChessPiece.PieceType.ROOK);
+                                    ChessMove promotion_move2 = new ChessMove(position, promotion_square, ChessPiece.PieceType.KNIGHT);
+                                    ChessMove promotion_move3 = new ChessMove(position, promotion_square, ChessPiece.PieceType.BISHOP);
+                                    PawnMoves.add(promotion_move);
+                                    PawnMoves.add(promotion_move1);
+                                    PawnMoves.add(promotion_move2);
+                                    PawnMoves.add(promotion_move3);
+                                }
+                            }
+                        }
+                        //pawn is on row 7
+                    }
+                }
+            }
+            //pawn is black
+            else {
+                int curr_col = position.getColumn();
+                int curr_row = position.getRow();
+                //first test to see if white pawn can move one space
+                if (OutOfBounds(curr_row - 1, curr_col + 0)) {
+                    ChessPosition next = new ChessPosition(curr_row - 1, curr_col + 0);
+                    ChessPiece square = board.getPiece(next);
+                    if (square == null) {
+                        if (curr_row > 2) {
+                            ChessMove valid_move = new ChessMove(position, next, null);
+                            PawnMoves.add(valid_move);
+                            //test to see if double move is open
+                            if (curr_row == 7) {
+                                ChessPosition double_next = new ChessPosition(curr_row - 2, curr_col);
+                                ChessPiece double_square = board.getPiece(double_next);
+                                if (double_square == null) {
+                                    ChessMove valid_double_move = new ChessMove(position, double_next, null);
+                                    PawnMoves.add(valid_double_move);
+                                }
+                            }
+                        }
+                        // black pawn is on row 1 and can promote
+                        else {
+                            ChessPosition promotion_square = new ChessPosition(curr_row - 1, curr_col);
+                            ChessMove promotion_move = new ChessMove(position, promotion_square, ChessPiece.PieceType.QUEEN);
+                            ChessMove promotion_move1 = new ChessMove(position, promotion_square, ChessPiece.PieceType.ROOK);
+                            ChessMove promotion_move2 = new ChessMove(position, promotion_square, ChessPiece.PieceType.KNIGHT);
+                            ChessMove promotion_move3 = new ChessMove(position, promotion_square, ChessPiece.PieceType.BISHOP);
+                            PawnMoves.add(promotion_move);
+                            PawnMoves.add(promotion_move1);
+                            PawnMoves.add(promotion_move2);
+                            PawnMoves.add(promotion_move3);
+                        }
+                    }
+                }
+                //pawn captures
+                for (moves move : pawn_moves_black) {
+                    if (OutOfBounds(curr_col + move.getDX(), curr_row + move.getDY())) {
+                        ChessPosition next = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
+                        ChessPiece square = board.getPiece(next);
+                        if (square != null) {
+                            if(curr_row > 2) {
+                                if (square.getTeamColor() != piece.getTeamColor()) {
+                                    ChessMove valid_move = new ChessMove(position, next, null);
+                                    PawnMoves.add(valid_move);
+                                }
+                            }
+                            else {
+                                if (square.getTeamColor() != piece.getTeamColor()) {
+                                    ChessPosition promotion_square = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
+                                    ChessMove promotion_move = new ChessMove(position, promotion_square, ChessPiece.PieceType.QUEEN);
+                                    ChessMove promotion_move1 = new ChessMove(position, promotion_square, ChessPiece.PieceType.ROOK);
+                                    ChessMove promotion_move2 = new ChessMove(position, promotion_square, ChessPiece.PieceType.KNIGHT);
+                                    ChessMove promotion_move3 = new ChessMove(position, promotion_square, ChessPiece.PieceType.BISHOP);
+                                    PawnMoves.add(promotion_move);
+                                    PawnMoves.add(promotion_move1);
+                                    PawnMoves.add(promotion_move2);
+                                    PawnMoves.add(promotion_move3);
+                                }
+                            }
                         }
                     }
                 }
