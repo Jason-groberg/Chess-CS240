@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 public class LegalMoves {
-
     public enum moves {
         //white POV
         RIGHT(1, 0), LEFT(-1, 0), DOWN(0, -1), UP(0, 1),
