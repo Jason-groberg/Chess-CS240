@@ -56,9 +56,38 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "board=" + Arrays.toString(board) +
-                '}';
+        StringBuilder chessBoard = new StringBuilder();
+        for (int row=1;row <9;row++){
+            chessBoard.append("\n");
+            for(int col =1; col < 9; col++){
+                ChessPosition square = new ChessPosition(row, col);
+                ChessPiece target = getPiece(square);
+                if(target != null) {
+                    if (target.getPieceType() == ChessPiece.PieceType.KING) {
+                        chessBoard.append("[K]");
+                    }
+                    if (target.getPieceType() == ChessPiece.PieceType.QUEEN) {
+                        chessBoard.append("[Q]");
+                    }
+                    if (target.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                        chessBoard.append("[N]");
+                    }
+                    if (target.getPieceType() == ChessPiece.PieceType.PAWN) {
+                        chessBoard.append("[p]");
+                    }
+                    if (target.getPieceType() == ChessPiece.PieceType.BISHOP) {
+                        chessBoard.append("[B]");
+                    }
+                    if (target.getPieceType() == ChessPiece.PieceType.ROOK) {
+                        chessBoard.append("[R]");
+                    }
+                }
+                else{
+                    chessBoard.append("[ ]");
+                }
+            }
+        }
+        return chessBoard.toString();
     }
 
     /**

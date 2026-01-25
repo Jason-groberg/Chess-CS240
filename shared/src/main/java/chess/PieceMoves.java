@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-public class LegalMoves {
+public class PieceMoves {
     public enum moves {
         //white POV
         RIGHT(1, 0), LEFT(-1, 0), DOWN(0, -1), UP(0, 1),
@@ -114,8 +114,8 @@ public class LegalMoves {
                 int curr_col = position.getColumn();
                 int curr_row = position.getRow();
                 //first test to see if white pawn can move one space
-                if (InBounds(curr_row + 1, curr_col + 0)) {
-                    ChessPosition next = new ChessPosition(curr_row + 1, curr_col + 0);
+                if (InBounds(curr_row + 1, curr_col)) {
+                    ChessPosition next = new ChessPosition(curr_row + 1, curr_col);
                     ChessPiece square = board.getPiece(next);
                     if (square == null) {
                         if (curr_row < 7) {
@@ -166,8 +166,8 @@ public class LegalMoves {
                 int curr_col = position.getColumn();
                 int curr_row = position.getRow();
                 //first test to see if white pawn can move one space
-                if (InBounds(curr_row - 1, curr_col + 0)) {
-                    ChessPosition next = new ChessPosition(curr_row - 1, curr_col + 0);
+                if (InBounds(curr_row - 1, curr_col)) {
+                    ChessPosition next = new ChessPosition(curr_row - 1, curr_col);
                     ChessPiece square = board.getPiece(next);
                     if (square == null) {
                         if (curr_row > 2) {
