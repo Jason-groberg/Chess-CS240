@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+
 public class PieceMoves {
     public enum moves {
         //white POV
@@ -24,18 +25,20 @@ public class PieceMoves {
             return dx;
         }
 
-        public int getDY() {return dy;}
+        public int getDY() {
+            return dy;
+        }
     }
 
     public static boolean InBounds(int row, int col) {
-        return row - 1 < 8 && row - 1 >= 0
-                && col - 1 < 8 && col - 1 >= 0;
+        return row < 9 && row > 0
+                && col < 9 && col > 0;
     }
 
-    public static Collection<ChessMove> FindMoves (ChessBoard board, ChessPosition position, EnumSet<moves> legal_moves) {
-        List<ChessMove> legalMoves = new ArrayList<>();
+    public static Collection<ChessMove> FindMoves(ChessBoard board, ChessPosition position, EnumSet<moves> legal_moves) {
+        Collection<ChessMove> legalMoves = new ArrayList<>();
         ChessPiece piece = board.getPiece(position);
-        for(moves move : legal_moves) {
+        for (moves move : legal_moves) {
             int curr_col = position.getColumn();
             int curr_row = position.getRow();
             //increment in the testing direction each loop, until piece captures, is blocked, or hits the edge.
@@ -43,18 +46,15 @@ public class PieceMoves {
                 ChessPosition next = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
                 ChessPiece square = board.getPiece(next);
                 if (square == null) {
-                    ChessMove valid_move = new ChessMove(position, next, null);
-                    legalMoves.add(valid_move);
-                    if(piece.getPieceType() == ChessPiece.PieceType.KING || piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                    legalMoves.add(new ChessMove(position, next, null));
+                    if (piece.getPieceType() == ChessPiece.PieceType.KING || piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
                         break;
                     }
                     curr_row += move.getDY();
                     curr_col += move.getDX();
-                }
-                else {
+                } else {
                     if (square.getTeamColor() != piece.getTeamColor()) {
-                        ChessMove valid_move = new ChessMove(position, next, null);
-                        legalMoves.add(valid_move);
+                        legalMoves.add(new ChessMove(position, next, null));
                         break;
                     }
                     break; //catch same color block
@@ -64,155 +64,109 @@ public class PieceMoves {
         return legalMoves;
     }
 
-    public static Collection<ChessMove> pawn_promotion(ChessPosition startposition, ChessPosition promotion_square) {
+    public Collection<ChessMove> pawn_promotion(ChessPosition startposition, ChessPosition promotion_square) {
         ArrayList<ChessMove> promotion_moves = new ArrayList<>();
-        EnumSet<ChessPiece.PieceType> types = EnumSet.of(ChessPiece.PieceType.ROOK,ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP);
-        for(ChessPiece.PieceType type : types) {
-            ChessMove promotion_move = new ChessMove(startposition, promotion_square, type);
-            promotion_moves.add(promotion_move);
+        EnumSet<ChessPiece.PieceType> types = EnumSet.of(ChessPiece.PieceType.ROOK, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP);
+        for (ChessPiece.PieceType type : types) {
+            promotion_moves.add(new ChessMove(startposition, promotion_square, type));
         }
         return promotion_moves;
     }
 
     // returns a list of all legal moves given piece and position
-    public static Collection<ChessMove> GetLegalMoves(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> GetLegalMoves(ChessBoard board, ChessPosition position) {
         ChessPiece piece = board.getPiece(position);
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             EnumSet<moves> king_moves = EnumSet.of(moves.UP, moves.LEFT, moves.RIGHT, moves.DOWN, moves.UP_LEFT,
                     moves.UP_RIGHT, moves.DOWN_LEFT, moves.DOWN_RIGHT);
-            return FindMoves(board,position, king_moves);
-
-        }
-        else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+            return FindMoves(board, position, king_moves);
+        } else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
             EnumSet<moves> queen_moves = EnumSet.of(moves.UP, moves.DOWN, moves.LEFT, moves.RIGHT, moves.DOWN_LEFT,
                     moves.UP_RIGHT, moves.DOWN_RIGHT, moves.UP_LEFT);
             return FindMoves(board, position, queen_moves);
-
-        }
-        else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+        } else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
             EnumSet<moves> rook_moves = EnumSet.of(moves.DOWN, moves.UP, moves.RIGHT, moves.LEFT);
             return FindMoves(board, position, rook_moves);
-
-        }
-        else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
+        } else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
             EnumSet<moves> bishop_moves = EnumSet.of(moves.DOWN_LEFT, moves.DOWN_RIGHT, moves.UP_LEFT, moves.UP_RIGHT);
             return FindMoves(board, position, bishop_moves);
-
-        }
-        else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
             EnumSet<moves> knight_moves = EnumSet.of(moves.D_D_L, moves.D_D_R, moves.U_U_R, moves.U_U_L, moves.L_L_D, moves.L_L_U, moves.R_R_D, moves.R_R_U);
             return FindMoves(board, position, knight_moves);
 
-        }
-        else if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            List<ChessMove> PawnMoves = new ArrayList<>();
+        } else if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            Collection<ChessMove> pawn_moves = new ArrayList<>();
             boolean isWhite = (piece.getTeamColor() == ChessGame.TeamColor.WHITE);
-            EnumSet<moves> pawn_moves_white = EnumSet.of( moves.UP_LEFT, moves.UP_RIGHT);
-            EnumSet<moves> pawn_moves_black = EnumSet.of(moves.DOWN_LEFT, moves.DOWN_RIGHT);
-            //white pawn moves
+            Collection<moves> white_pawn = EnumSet.of(moves.UP_RIGHT, moves.UP_LEFT, moves.UP);
+            Collection<moves> black_pawn = EnumSet.of(moves.DOWN_RIGHT, moves.DOWN_LEFT, moves.DOWN);
             if (isWhite) {
-                int curr_col = position.getColumn();
-                int curr_row = position.getRow();
-                //first test to see if white pawn can move one space
-                if (InBounds(curr_row + 1, curr_col)) {
-                    ChessPosition next = new ChessPosition(curr_row + 1, curr_col);
-                    ChessPiece square = board.getPiece(next);
-                    if (square == null) {
-                        if (curr_row < 7) {
-                            ChessMove valid_move = new ChessMove(position, next, null);
-                            PawnMoves.add(valid_move);
-                            //test to see if double move is open
-                            if (curr_row == 2) {
-                                ChessPosition double_next = new ChessPosition(curr_row + 2, curr_col);
-                                ChessPiece double_square = board.getPiece(double_next);
-                                if (double_square == null) {
-                                    ChessMove valid_double_move = new ChessMove(position, double_next, null);
-                                    PawnMoves.add(valid_double_move);
-                                }
-                            }
-                        }
-                        // pawn is on row 7 and can promote
-                        else {
-                            ChessPosition promotion_square = new ChessPosition(curr_row + 1, curr_col);
-                            PawnMoves.addAll(pawn_promotion(position, promotion_square));
-                        }
-                    }
-                }
-                //pawn captures
-                for (moves move : pawn_moves_white) {
-                    if (InBounds(curr_col + move.getDX(), curr_row + move.getDY())) {
+                for (moves move : white_pawn) {
+                    int curr_row = position.getRow();
+                    int curr_col = position.getColumn();
+                    if (InBounds(curr_row + move.getDY(), curr_col + move.getDX())) {
                         ChessPosition next = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
-                        ChessPiece square = board.getPiece(next);
-                        if (square != null) {
-                            if(curr_row <7) {
-                                if (square.getTeamColor() != piece.getTeamColor()) {
-                                    ChessMove valid_move = new ChessMove(position, next, null);
-                                    PawnMoves.add(valid_move);
+                        ChessPiece target = board.getPiece(next);
+                        if (target == null && move.getDX() == 0) {
+                            //single move foward
+                            if (curr_row < 7) {
+                                pawn_moves.add(new ChessMove(position, next, null));
+                                if (curr_row == 2) {
+                                    ChessPosition double_next = new ChessPosition(curr_row + 2, curr_col + move.getDX());
+                                    ChessPiece target_2 = board.getPiece(double_next);
+                                    if (target_2 == null) {
+                                        pawn_moves.add(new ChessMove(position, double_next, null));
+                                    }
                                 }
-                            }
-                            else {
-                                if (square.getTeamColor() != piece.getTeamColor()) {
-                                    ChessPosition promotion_square = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
-                                    PawnMoves.addAll(pawn_promotion(position, promotion_square));
-                                }
+                            } else {
+                                pawn_moves.addAll(pawn_promotion(position, next));
                             }
                         }
-                        //pawn is on row 7
+                        //pawn captures
+                        else if (target != null && target.getTeamColor() != piece.getTeamColor() && move.getDX() != 0) {
+                            if (curr_row < 7) {
+                                pawn_moves.add(new ChessMove(position, next, null));
+                            } else {
+                                pawn_moves.addAll(pawn_promotion(position, next));
+                            }
+                        }
                     }
                 }
             }
             //pawn is black
             else {
-                int curr_col = position.getColumn();
-                int curr_row = position.getRow();
-                //first test to see if white pawn can move one space
-                if (InBounds(curr_row - 1, curr_col)) {
-                    ChessPosition next = new ChessPosition(curr_row - 1, curr_col);
-                    ChessPiece square = board.getPiece(next);
-                    if (square == null) {
-                        if (curr_row > 2) {
-                            ChessMove valid_move = new ChessMove(position, next, null);
-                            PawnMoves.add(valid_move);
-                            //test to see if double move is open
-                            if (curr_row == 7) {
-                                ChessPosition double_next = new ChessPosition(curr_row - 2, curr_col);
-                                ChessPiece double_square = board.getPiece(double_next);
-                                if (double_square == null) {
-                                    ChessMove valid_double_move = new ChessMove(position, double_next, null);
-                                    PawnMoves.add(valid_double_move);
-                                }
-                            }
-                        }
-                        // black pawn is on row 1 and can promote
-                        else {
-                            ChessPosition promotion_square = new ChessPosition(curr_row - 1, curr_col);
-                            PawnMoves.addAll(pawn_promotion(position, promotion_square));
-                        }
-                    }
-                }
-                //pawn captures
-                for (moves move : pawn_moves_black) {
-                    if (InBounds(curr_col + move.getDX(), curr_row + move.getDY())) {
+                for (moves move : black_pawn) {
+                    int curr_row = position.getRow();
+                    int curr_col = position.getColumn();
+                    if (InBounds(curr_row + move.getDY(), curr_col + move.getDX())) {
                         ChessPosition next = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
-                        ChessPiece square = board.getPiece(next);
-                        if (square != null) {
-                            if(curr_row > 2) {
-                                if (square.getTeamColor() != piece.getTeamColor()) {
-                                    ChessMove valid_move = new ChessMove(position, next, null);
-                                    PawnMoves.add(valid_move);
+                        ChessPiece target = board.getPiece(next);
+                        if (target == null && move.getDX() == 0) {
+                            //single move foward
+                            if (curr_row > 2) {
+                                pawn_moves.add(new ChessMove(position, next, null));
+                                if (curr_row == 7) {
+                                    ChessPosition double_next = new ChessPosition(curr_row - 2, curr_col + move.getDX());
+                                    ChessPiece target_2 = board.getPiece(double_next);
+                                    if (target_2 == null) {
+                                        pawn_moves.add(new ChessMove(position, double_next, null));
+                                    }
                                 }
+                            } else {
+                                pawn_moves.addAll(pawn_promotion(position, next));
                             }
-                            else {
-                                if (square.getTeamColor() != piece.getTeamColor()) {
-                                    ChessPosition promotion_square = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
-                                    PawnMoves.addAll(pawn_promotion(position, promotion_square));
-                                }
+                        }
+                        //pawn captures
+                        else if (target != null && target.getTeamColor() != piece.getTeamColor() && move.getDX() != 0) {
+                            if (curr_row > 2) {
+                                pawn_moves.add(new ChessMove(position, next, null));
+                            } else {
+                                pawn_moves.addAll(pawn_promotion(position, next));
                             }
                         }
                     }
                 }
             }
-            return PawnMoves;
+            return pawn_moves;
         }
         return List.of();
     }

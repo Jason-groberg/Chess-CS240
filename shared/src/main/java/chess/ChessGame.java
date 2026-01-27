@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public class ChessGame {
 
-    private ChessBoard board = new ChessBoard();
+    private ChessBoard current_board = new ChessBoard();
     private boolean isInCheck;
     private boolean isInCheckmate;
     private boolean isInStalemate;
@@ -38,6 +38,15 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         this.current_turn = team;
+    }
+
+    public void change_turn(){
+        if(getTeamTurn() == TeamColor.WHITE){
+            this.current_turn = TeamColor.BLACK;
+        }
+        else {
+            this.current_turn = TeamColor.WHITE;
+        }
     }
 
     /**
@@ -115,7 +124,7 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        return board;
+        return current_board;
     }
 
     @Override
@@ -125,11 +134,11 @@ public class ChessGame {
         }
         ChessGame chessGame = (ChessGame) o;
         return isInCheck == chessGame.isInCheck && isInCheckmate == chessGame.isInCheckmate
-                && isInStalemate == chessGame.isInStalemate && Objects.equals(board, chessGame.board);
+                && isInStalemate == chessGame.isInStalemate && Objects.equals(current_board, chessGame.current_board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(board, isInCheck, isInCheckmate, isInStalemate);
+        return Objects.hash(current_board, isInCheck, isInCheckmate, isInStalemate);
     }
 }

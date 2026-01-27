@@ -68,6 +68,5 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         PieceMoves piece_moves = new PieceMoves();
         return piece_moves.GetLegalMoves(board, myPosition);
-
     }
 }
