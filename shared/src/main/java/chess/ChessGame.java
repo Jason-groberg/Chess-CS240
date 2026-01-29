@@ -1,6 +1,6 @@
 package chess;
-
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -22,13 +22,13 @@ public class ChessGame {
         this.isInStalemate = false;
         this.isInCheckmate = false;
         this.isInCheck = false;
+        this.current_board.resetBoard();
     }
 
     /**
      * @return Which team's turn it is
      */
-    public TeamColor getTeamTurn() {
-        return current_turn;
+    public TeamColor getTeamTurn() {return current_turn;
     }
 
     /**
@@ -65,7 +65,8 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+
+        return List.of();
     }
 
     /**
@@ -115,7 +116,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        board.resetBoard();
+        this.current_board = board;
     }
 
     /**

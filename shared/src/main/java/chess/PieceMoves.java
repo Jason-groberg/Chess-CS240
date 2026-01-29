@@ -111,7 +111,7 @@ public class PieceMoves {
                             if (curr_row < 7) {
                                 pawn_moves.add(new ChessMove(position, next, null));
                                 if (curr_row == 2) {
-                                    ChessPosition double_next = new ChessPosition(curr_row + 2, curr_col + move.getDX());
+                                    ChessPosition double_next = new ChessPosition(curr_row + 2, curr_col);
                                     ChessPiece target_2 = board.getPiece(double_next);
                                     if (target_2 == null) {
                                         pawn_moves.add(new ChessMove(position, double_next, null));
@@ -145,7 +145,7 @@ public class PieceMoves {
                             if (curr_row > 2) {
                                 pawn_moves.add(new ChessMove(position, next, null));
                                 if (curr_row == 7) {
-                                    ChessPosition double_next = new ChessPosition(curr_row - 2, curr_col + move.getDX());
+                                    ChessPosition double_next = new ChessPosition(curr_row - 2, curr_col);
                                     ChessPiece target_2 = board.getPiece(double_next);
                                     if (target_2 == null) {
                                         pawn_moves.add(new ChessMove(position, double_next, null));
