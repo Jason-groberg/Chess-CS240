@@ -61,29 +61,60 @@ public class ChessBoard {
     @Override
     public String toString() {
         StringBuilder chessBoard = new StringBuilder();
-        for (int row=1;row <9;row++){
+        for (int row=8;row >0;row--){
             chessBoard.append("\n");
-            for(int col =1; col < 9; col++){
+            for(int col =1; col <9; col++){
                 ChessPosition square = new ChessPosition(row, col);
                 ChessPiece target = getPiece(square);
                 if(target != null) {
                     if (target.getPieceType() == ChessPiece.PieceType.KING) {
-                        chessBoard.append("[K]");
+                        if(target.getTeamColor() == ChessGame.TeamColor.BLACK){
+                            chessBoard.append("[k]");
+                        }
+                        else{
+                            chessBoard.append("[K]");
+                        }
+
                     }
                     if (target.getPieceType() == ChessPiece.PieceType.QUEEN) {
-                        chessBoard.append("[Q]");
+                        if(target.getTeamColor() == ChessGame.TeamColor.BLACK){
+                            chessBoard.append("[q]");
+                        }
+                        else{
+                            chessBoard.append("[Q]");
+                        }
                     }
                     if (target.getPieceType() == ChessPiece.PieceType.KNIGHT) {
-                        chessBoard.append("[N]");
+                        if(target.getTeamColor() == ChessGame.TeamColor.BLACK){
+                            chessBoard.append("[n]");
+                        }
+                        else{
+                            chessBoard.append("[N]");
+                        }
                     }
                     if (target.getPieceType() == ChessPiece.PieceType.PAWN) {
-                        chessBoard.append("[p]");
+                        if(target.getTeamColor() == ChessGame.TeamColor.BLACK){
+                            chessBoard.append("[p]");
+                        }
+                        else{
+                            chessBoard.append("[P]");
+                        }
                     }
                     if (target.getPieceType() == ChessPiece.PieceType.BISHOP) {
-                        chessBoard.append("[B]");
+                        if(target.getTeamColor() == ChessGame.TeamColor.BLACK){
+                            chessBoard.append("[b]");
+                        }
+                        else{
+                            chessBoard.append("[B]");
+                        }
                     }
                     if (target.getPieceType() == ChessPiece.PieceType.ROOK) {
-                        chessBoard.append("[R]");
+                        if(target.getTeamColor() == ChessGame.TeamColor.BLACK){
+                            chessBoard.append("[r]");
+                        }
+                        else{
+                            chessBoard.append("[R]");
+                        }
                     }
                 }
                 else{
@@ -98,6 +129,14 @@ public class ChessBoard {
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
+    public void eraseBoard() {
+        for(int row=0;row<0;row++){
+            for(int col =0; col<0;col++){
+                board[row][col] = null;
+            }
+        }
+    }
+
     public void resetBoard() {
         addPiece(new ChessPosition(1,1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         addPiece(new ChessPosition(1, 2), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));

@@ -20,10 +20,11 @@ public class ChessGame {
 
     public ChessGame() {
         this.current_turn = TeamColor.WHITE;
+        this.current_board.resetBoard();
         this.isInStalemate = false;
         this.isInCheckmate = false;
         this.isInCheck = false;
-        this.current_board.resetBoard();
+
     }
 
     /**
@@ -179,7 +180,13 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return isInCheckmate;
+        ChessPosition king_pos = FindKing(teamColor, current_board);
+        if(HasNoLegalMoves(king_pos)){
+            if(KingInCheck(teamColor, current_board)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -190,7 +197,34 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        return isInStalemate;
+        if(isInCheck(teamColor)){
+            return false;
+        }
+        Collection<ChessMove> legal_moves = new ArrayList<>();
+        for(int row=1;row<9;row++){
+            for(int col=1;col<9;col++){
+                ChessPosition target = new ChessPosition(row,col);
+                ChessPiece target_piece = current_board.getPiece(target);
+                if(target_piece == null){
+                    continue;
+                }
+                if(target_piece.getTeamColor() == teamColor){
+                    if(!HasNoLegalMoves(target)){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public Boolean HasNoLegalMoves(ChessPosition pos){
+        Collection<ChessMove> piece_moves = validMoves(pos);
+        if(current_board.getPiece(pos) == null){return false;}
+        if(piece_moves.size()==0){
+            return true;
+        }
+        return false;
     }
 
     /**
