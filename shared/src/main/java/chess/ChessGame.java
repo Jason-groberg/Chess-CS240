@@ -1,4 +1,5 @@
 package chess;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +32,7 @@ public class ChessGame {
     public TeamColor getTeamTurn() {return current_turn;
     }
 
+
     /**
      * Set's which teams turn it is
      *
@@ -57,6 +59,17 @@ public class ChessGame {
         BLACK
     }
 
+
+    public ChessBoard copy(){
+        ChessBoard clone = new ChessBoard();
+        for(int row = 0;row <9;row++){
+            for(int col =0; col<9;col++){
+                ChessPosition pos = new ChessPosition(row, col);
+                clone.addPiece(pos, current_board.getPiece(pos));
+            }
+        }
+        return clone;
+    }
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -65,18 +78,41 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        ChessPiece piece = current_board.getPiece(startPosition);
+        Collection<ChessMove> all_moves = piece.pieceMoves(current_board, startPosition);
+        Collection<ChessMove> legal_moves = new ArrayList<>();
+        for(ChessMove move : all_moves){
+            ChessBoard next_board = copy();
+            testMove(move, next_board);
+            if(!isInCheck(piece.getTeamColor())){
+                ChessMove legal_move = new ChessMove(startPosition, move.getEndPosition(), null);
+                legal_moves.add(legal_move);
 
+            }
+        }
         return List.of();
     }
 
+    public void testMove(ChessMove move, ChessBoard board){
+        board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        board.removePiece(move.getStartPosition());
+    }
     /**
      * Makes a move in a chess game
-     *
      * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        try {
+            ChessPiece piece = current_board.getPiece(move.getStartPosition());
+            current_board.addPiece(move.getEndPosition(), piece);
+            current_board.removePiece(move.getStartPosition());
+        }
+        catch (InvalidMoveException ){
+
+            throw new InvalidMoveException("Requested move is not legal");
+        }
+
     }
 
     /**
@@ -86,6 +122,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+
+
         return isInCheck;
     }
 
