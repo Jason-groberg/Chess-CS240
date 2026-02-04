@@ -199,10 +199,8 @@ public class ChessGame {
                 }
             }
         }
-        for(ChessMove move: saving_moves){
-            if (move.getEndPosition().equals(king_pos)){
-                return false;
-            }
+        if(saving_moves.size()!=0){
+            return false;
         }
         return true;
     }
@@ -268,12 +266,11 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return isInCheck == chessGame.isInCheck && isInCheckmate == chessGame.isInCheckmate
-                && isInStalemate == chessGame.isInStalemate && Objects.equals(current_board, chessGame.current_board);
+        return isInCheck == chessGame.isInCheck && isInCheckmate == chessGame.isInCheckmate && isInStalemate == chessGame.isInStalemate && Objects.equals(current_board, chessGame.current_board) && current_turn == chessGame.current_turn;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(current_board, isInCheck, isInCheckmate, isInStalemate);
+        return Objects.hash(current_board, isInCheck, isInCheckmate, isInStalemate, current_turn);
     }
 }
