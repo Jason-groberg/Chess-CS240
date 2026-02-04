@@ -1,7 +1,6 @@
 package chess;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -96,12 +95,12 @@ public class ChessGame {
         board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
         board.removePiece(move.getStartPosition());
     }
+
     /**
      * Makes a move in a chess game
      * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
-
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> game_moves = new ArrayList<>();
         try {
@@ -123,6 +122,7 @@ public class ChessGame {
                 current_board.addPiece(move.getEndPosition(), promotionPiece);
             }
             current_board.removePiece(move.getStartPosition());
+            game_moves.add(move);
             change_turn();
         } catch (InvalidMoveException ErrorMessage) {
             throw ErrorMessage;
@@ -183,11 +183,10 @@ public class ChessGame {
         if(!KingInCheck(teamColor, current_board)){
             return false;
         }
-        return BlockCheck(teamColor, current_board);
+        return BlockCheck();
     }
 
-    public boolean BlockCheck(TeamColor color, ChessBoard board){
-        ChessPosition king_pos = FindKing(color, current_board);
+    public boolean BlockCheck(){
         Collection<ChessMove> saving_moves = new ArrayList<>();
         for(int row=1;row<9;row++){
             for(int col =1;col<9;col++){
@@ -199,11 +198,9 @@ public class ChessGame {
                 }
             }
         }
-        if(saving_moves.size()!=0){
-            return false;
-        }
-        return true;
+        return saving_moves.isEmpty();
     }
+
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves while not in check.
@@ -215,7 +212,6 @@ public class ChessGame {
         if(isInCheck(teamColor)){
             return false;
         }
-        Collection<ChessMove> legal_moves = new ArrayList<>();
         for(int row=1;row<9;row++){
             for(int col=1;col<9;col++){
                 ChessPosition target = new ChessPosition(row,col);
@@ -234,12 +230,7 @@ public class ChessGame {
     }
 
     public Boolean HasNoLegalMoves(ChessPosition pos){
-        Collection<ChessMove> piece_moves = validMoves(pos);
-        if(current_board.getPiece(pos) == null){return false;}
-        if(piece_moves.size()==0){
-            return true;
-        }
-        return false;
+        return validMoves(pos).isEmpty();
     }
 
     /**
