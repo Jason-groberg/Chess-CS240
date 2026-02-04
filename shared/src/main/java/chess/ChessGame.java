@@ -180,15 +180,32 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessPosition king_pos = FindKing(teamColor, current_board);
-        if(HasNoLegalMoves(king_pos)){
-            if(KingInCheck(teamColor, current_board)){
-                return true;
-            }
+        if(!KingInCheck(teamColor, current_board)){
+            return false;
         }
-        return false;
+        return BlockCheck(teamColor, current_board);
     }
 
+    public boolean BlockCheck(TeamColor color, ChessBoard board){
+        ChessPosition king_pos = FindKing(color, current_board);
+        Collection<ChessMove> saving_moves = new ArrayList<>();
+        for(int row=1;row<9;row++){
+            for(int col =1;col<9;col++){
+                ChessPosition target = new ChessPosition(row,col);
+                ChessPiece target_piece = current_board.getPiece(target);
+                if(target_piece != null && target_piece.getTeamColor() == current_turn){
+                    Collection<ChessMove> legal_moves = validMoves(target);
+                    saving_moves.addAll(legal_moves);
+                }
+            }
+        }
+        for(ChessMove move: saving_moves){
+            if (move.getEndPosition().equals(king_pos)){
+                return false;
+            }
+        }
+        return true;
+    }
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves while not in check.
