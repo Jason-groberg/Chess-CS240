@@ -64,11 +64,11 @@ public class PieceMoves {
         return legalMoves;
     }
 
-    public Collection<ChessMove> pawn_promotion(ChessPosition startposition, ChessPosition promotion_square) {
+    public Collection<ChessMove> pawn_promotion(ChessPosition startPosition, ChessPosition promotion_square) {
         ArrayList<ChessMove> promotion_moves = new ArrayList<>();
         EnumSet<ChessPiece.PieceType> types = EnumSet.of(ChessPiece.PieceType.ROOK, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP);
         for (ChessPiece.PieceType type : types) {
-            promotion_moves.add(new ChessMove(startposition, promotion_square, type));
+            promotion_moves.add(new ChessMove(startPosition, promotion_square, type));
         }
         return promotion_moves;
     }
@@ -107,7 +107,7 @@ public class PieceMoves {
                         ChessPosition next = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
                         ChessPiece target = board.getPiece(next);
                         if (target == null && move.getDX() == 0) {
-                            //single move foward
+                            //single move forward
                             if (curr_row < 7) {
                                 pawn_moves.add(new ChessMove(position, next, null));
                                 if (curr_row == 2) {
@@ -141,7 +141,7 @@ public class PieceMoves {
                         ChessPosition next = new ChessPosition(curr_row + move.getDY(), curr_col + move.getDX());
                         ChessPiece target = board.getPiece(next);
                         if (target == null && move.getDX() == 0) {
-                            //single move foward
+                            //single move forward
                             if (curr_row > 2) {
                                 pawn_moves.add(new ChessMove(position, next, null));
                                 if (curr_row == 7) {

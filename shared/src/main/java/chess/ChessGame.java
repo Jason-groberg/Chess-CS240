@@ -9,7 +9,6 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-
 public class ChessGame {
     private ChessBoard current_board = new ChessBoard();
     private boolean isInCheck;
@@ -23,7 +22,6 @@ public class ChessGame {
         this.isInStalemate = false;
         this.isInCheckmate = false;
         this.isInCheck = false;
-
     }
 
     /**
@@ -103,17 +101,16 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> game_moves = new ArrayList<>();
-        try {
             ChessPiece piece = current_board.getPiece(move.getStartPosition());
             if (piece == null) {
-                throw new InvalidMoveException("No piece at position" + move.getStartPosition());
+                throw new InvalidMoveException("No piece at position: " + move.getStartPosition());
             }
             if (piece.getTeamColor() != current_turn) {
-                throw new InvalidMoveException("not your turn, current game turn is" + current_turn);
+                throw new InvalidMoveException("not your turn, current game turn is " + current_turn);
             }
             Collection<ChessMove> legalMoves = validMoves(move.getStartPosition());
-            if (legalMoves == null || !legalMoves.contains(move)) {
-                throw new InvalidMoveException("Requested Move is Illegal");
+            if (legalMoves.isEmpty() || !legalMoves.contains(move)) {
+                throw new InvalidMoveException("Requested Move is Illegal for Piece type: " + piece.getPieceType());
             }
             if (move.getPromotionPiece() == null) {
                 current_board.addPiece(move.getEndPosition(), piece);
@@ -124,11 +121,7 @@ public class ChessGame {
             current_board.removePiece(move.getStartPosition());
             game_moves.add(move);
             change_turn();
-        } catch (InvalidMoveException ErrorMessage) {
-            throw ErrorMessage;
         }
-    }
-
 
     /**
      * Determines if the given team is in check
@@ -165,7 +158,7 @@ public class ChessGame {
             for(int col=1;col <9; col++){
                 ChessPosition target = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(target);
-                if( piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color){
+                if(piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color){
                     return target;
                 }
             }
@@ -183,16 +176,16 @@ public class ChessGame {
         if(!KingInCheck(teamColor, current_board)){
             return false;
         }
-        return BlockCheck();
+        return HasNoLegalMoves(teamColor);
     }
 
-    public boolean BlockCheck(){
+    public boolean HasNoLegalMoves(TeamColor teamColor){
         Collection<ChessMove> saving_moves = new ArrayList<>();
         for(int row=1;row<9;row++){
             for(int col =1;col<9;col++){
                 ChessPosition target = new ChessPosition(row,col);
                 ChessPiece target_piece = current_board.getPiece(target);
-                if(target_piece != null && target_piece.getTeamColor() == current_turn){
+                if(target_piece != null && target_piece.getTeamColor() == teamColor){
                     Collection<ChessMove> legal_moves = validMoves(target);
                     saving_moves.addAll(legal_moves);
                 }
@@ -212,25 +205,7 @@ public class ChessGame {
         if(isInCheck(teamColor)){
             return false;
         }
-        for(int row=1;row<9;row++){
-            for(int col=1;col<9;col++){
-                ChessPosition target = new ChessPosition(row,col);
-                ChessPiece target_piece = current_board.getPiece(target);
-                if(target_piece == null){
-                    continue;
-                }
-                if(target_piece.getTeamColor() == teamColor){
-                    if(!HasNoLegalMoves(target)){
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    public Boolean HasNoLegalMoves(ChessPosition pos){
-        return validMoves(pos).isEmpty();
+        return HasNoLegalMoves(teamColor);
     }
 
     /**

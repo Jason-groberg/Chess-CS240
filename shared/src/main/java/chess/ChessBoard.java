@@ -130,8 +130,8 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void eraseBoard() {
-        for(int row=0;row<0;row++){
-            for(int col =0; col<0;col++){
+        for(int row=0; row<9;row++){
+            for(int col =0; col<9;col++){
                 board[row][col] = null;
             }
         }
