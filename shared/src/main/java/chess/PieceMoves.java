@@ -66,7 +66,8 @@ public class PieceMoves {
     }
 
     public void pawnPromotion(ChessPosition startPosition, ChessPosition promotionSquare, Collection<ChessMove> pawnMoves) {
-        EnumSet<ChessPiece.PieceType> types = EnumSet.of(ChessPiece.PieceType.ROOK, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP);
+        EnumSet<ChessPiece.PieceType> types = EnumSet.of(ChessPiece.PieceType.ROOK, ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP);
         for (ChessPiece.PieceType type : types) {
             pawnMoves.add(new ChessMove(startPosition, promotionSquare, type));
         }

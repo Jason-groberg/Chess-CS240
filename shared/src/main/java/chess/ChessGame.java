@@ -232,7 +232,8 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return isInCheck == chessGame.isInCheck && isInCheckmate == chessGame.isInCheckmate && isInStalemate == chessGame.isInStalemate && Objects.equals(currentBoard, chessGame.currentBoard) && currentTurn == chessGame.currentTurn;
+        return isInCheck == chessGame.isInCheck && isInCheckmate == chessGame.isInCheckmate && isInStalemate == chessGame.isInStalemate
+                && Objects.equals(currentBoard, chessGame.currentBoard) && currentTurn == chessGame.currentTurn;
     }
 
     @Override
