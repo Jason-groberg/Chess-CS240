@@ -15,8 +15,6 @@ public class testing {
             if(move.equalsIgnoreCase("q")){
                 break;
             }
-            // try to make game move
-            game.change_turn();
         }
         scanner.close();
     }
