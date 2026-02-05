@@ -52,7 +52,8 @@ public class PieceMoves {
                     }
                     currRow += move.getDY();
                     currCol += move.getDX();
-                } else {
+                }
+                else {
                     if (square.getTeamColor() != piece.getTeamColor()) {
                         legalMoves.add(new ChessMove(position, next, null));
                         break;
@@ -93,7 +94,6 @@ public class PieceMoves {
         } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
             EnumSet<Moves> knightMoves = EnumSet.of(Moves.D_D_L, Moves.D_D_R, Moves.U_U_R, Moves.U_U_L, Moves.L_L_D, Moves.L_L_U, Moves.R_R_D, Moves.R_R_U);
             return findMoves(board, position, knightMoves);
-
         } else if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             Collection<ChessMove> pawnMoves = new ArrayList<>();
             boolean isWhite = (piece.getTeamColor() == ChessGame.TeamColor.WHITE);
