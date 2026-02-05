@@ -129,13 +129,13 @@ public class ChessBoard {
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
-    public void eraseBoard() {
-        for(int row=0; row<9;row++){
-            for(int col =0; col<9;col++){
-                board[row][col] = null;
-            }
-        }
-    }
+//    public void eraseBoard() {
+//        for(int row=0; row<9;row++){
+//            for(int col =0; col<9;col++){
+//                board[row][col] = null;
+//            }
+//        }
+//    }
 
     public void resetBoard() {
         addPiece(new ChessPosition(1,1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
