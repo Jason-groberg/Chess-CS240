@@ -26,7 +26,6 @@ public class ChessGame {
         this.isInCheckmate = false;
         this.isInCheck = false;
         this.gameMoves = new ArrayList<>();
-        this.canCastle = new Castle(gameMoves, currentBoard);
     }
 
     public Collection<ChessMove> getGameMoves() {
@@ -89,6 +88,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        canCastle = new Castle(gameMoves, currentBoard);
         ChessPiece piece = currentBoard.getPiece(startPosition);
         if(piece.getPieceType() == null){return List.of();}
         Collection<ChessMove> allMoves = piece.pieceMoves(currentBoard, startPosition);
@@ -120,7 +120,7 @@ public class ChessGame {
                 legalMoves.add(kingSideCastle);
             }
         }
-        else if(canCastle.canCastleQueenSide(color)){
+        if(canCastle.canCastleQueenSide(color)){
             ChessPosition leftSquare = new ChessPosition(kingPos.getRow(), kingPos.getColumn()-1);
             ChessBoard clone = copy();
             testMove(new ChessMove(kingPos, leftSquare,null), clone);

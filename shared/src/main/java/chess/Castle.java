@@ -80,10 +80,10 @@ public class Castle {
         if (position.equals(new ChessPosition(8, 5))) {
             blackKingMoved = true;
         }
-        if (position.equals(new ChessPosition(8, 1))) {
+        if (position.equals(new ChessPosition(8, 8))) {
             blackRook2Moved = true;
         }
-        if (position.equals(new ChessPosition(8, 8))){
+        if (position.equals(new ChessPosition(8, 1))){
             blackRook1Moved = true;
             }
     }
