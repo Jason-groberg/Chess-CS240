@@ -1,4 +1,5 @@
 package chess;
+import java.util.Collection;
 import java.util.Scanner;
 
 
@@ -6,10 +7,10 @@ public class Testing {
 
     public static void main(String[] args) {
         ChessGame game = new ChessGame();
-        game.setTeamTurn(ChessGame.TeamColor.WHITE);
         ChessBoard board = game.getBoard();
-        System.out.println(board);
-        ChessPosition e2 = new ChessPosition(2,2);
-        ChessPosition e4 = new ChessPosition(4,2);
+        Collection<ChessMove> gameMoves = game.getGameMoves();
+        ChessPosition kingPos = game.findKing(ChessGame.TeamColor.WHITE, board);
+        Castle castle = new Castle(gameMoves, board);
+        System.out.println(castle.toString());
     }
 }

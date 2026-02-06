@@ -17,7 +17,7 @@ public class ChessGame {
     private TeamColor currentTurn;
     private boolean blackHasCastled;
     private boolean whiteHasCastled;
-
+    Collection<ChessMove> gameMoves = new ArrayList<>();
 
     public ChessGame() {
         this.currentTurn = TeamColor.WHITE;
@@ -27,6 +27,15 @@ public class ChessGame {
         this.isInCheck = false;
         this.whiteHasCastled = false;
         this.blackHasCastled = false;
+        this.gameMoves = gameMoves;
+    }
+
+    public Collection<ChessMove> getGameMoves() {
+        return gameMoves;
+    }
+
+    public void setGameMoves(Collection<ChessMove> gameMoves) {
+        this.gameMoves = gameMoves;
     }
 
     /**
@@ -105,7 +114,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        Collection<ChessMove> gameMoves = new ArrayList<>();
             ChessPiece piece = currentBoard.getPiece(move.getStartPosition());
             if (piece == null) {
                 throw new InvalidMoveException("No piece at position: " + move.getStartPosition());
