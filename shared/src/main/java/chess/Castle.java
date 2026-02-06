@@ -15,6 +15,11 @@ public class Castle {
     public Castle(Collection<ChessMove> gameMoves, ChessBoard gameBoard){
         this.gameMoves = gameMoves;
         this.gameBoard = gameBoard;
+        resetBools();
+
+    }
+
+    private void resetBools() {
         this.whiteRook1Moved = false;
         this.whiteRook2Moved = false;
         this.whiteKingMoved = false;
@@ -23,29 +28,29 @@ public class Castle {
         this.blackRook2Moved = false;
     }
 
-    public boolean kingSideClear(ChessGame.TeamColor teamColor){
+    public boolean canCastleKingSide(ChessGame.TeamColor teamColor){
         if(teamColor == ChessGame.TeamColor.WHITE){
-            if(whiteKingMoved||whiteRook2Moved){
+            if(!whiteKingMoved&&!whiteRook2Moved){
                 return gameBoard.getPiece(new ChessPosition(1,6))==null && gameBoard.getPiece(new ChessPosition(1,7))==null;
             }
         }
         else {
-            if(blackKingMoved||blackRook2Moved){
+            if(!blackKingMoved&&!blackRook2Moved){
                 return gameBoard.getPiece(new ChessPosition(8,6))==null && gameBoard.getPiece(new ChessPosition(8,7))==null;
             }
         }
         return false;
     }
 
-    public boolean queenSideClear(ChessGame.TeamColor teamColor){
+    public boolean canCastleQueenSide(ChessGame.TeamColor teamColor){
         if(teamColor == ChessGame.TeamColor.WHITE){
-            if(whiteKingMoved||whiteRook1Moved){
+            if(!whiteKingMoved&&!whiteRook1Moved){
                 return gameBoard.getPiece(new ChessPosition(1,4))==null && gameBoard.getPiece(new ChessPosition(1,3))==null
                         && gameBoard.getPiece(new ChessPosition(1,2))==null;
             }
         }
         else {
-            if(blackKingMoved||blackRook1Moved){
+            if(!blackKingMoved&&!blackRook1Moved){
                 return gameBoard.getPiece(new ChessPosition(8,4))==null && gameBoard.getPiece(new ChessPosition(8,3))==null
                         && gameBoard.getPiece(new ChessPosition(8,2))==null;
             }
@@ -66,10 +71,10 @@ public class Castle {
         if (position.equals(new ChessPosition(1, 5))) {
             whiteKingMoved = true;
         }
-        if (position.equals(new ChessPosition(1, 1))) {
+        if (position.equals(new ChessPosition(1, 8))) {
             whiteRook2Moved = true;
         }
-        if (position.equals(new ChessPosition(1, 8))) {
+        if (position.equals(new ChessPosition(1, 1))) {
             whiteRook1Moved = true;
         }
         if (position.equals(new ChessPosition(8, 5))) {
@@ -84,14 +89,14 @@ public class Castle {
     }
 
     private void checkCaptured(ChessPosition pos) {
-        if (pos.equals(new ChessPosition(1, 1))) {
+        if (pos.equals(new ChessPosition(1, 8))) {
             whiteRook2Moved = true;
         }
-        if (pos.equals(new ChessPosition(1, 8))){
+        if (pos.equals(new ChessPosition(1, 1))){
             whiteRook1Moved = true;}
-        if (pos.equals(new ChessPosition(8, 1))) {
+        if (pos.equals(new ChessPosition(8, 8))) {
             blackRook2Moved = true;}
-        if (pos.equals(new ChessPosition(8, 8))){
+        if (pos.equals(new ChessPosition(8, 1))){
             blackRook1Moved = true;}
     }
 
@@ -110,5 +115,4 @@ public class Castle {
     public void setGameMoves(Collection<ChessMove> gameMoves) {
         this.gameMoves = gameMoves;
     }
-
 }
