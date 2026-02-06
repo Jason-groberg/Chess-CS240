@@ -15,6 +15,9 @@ public class ChessGame {
     private boolean isInCheckmate;
     private boolean isInStalemate;
     private TeamColor currentTurn;
+    private boolean blackHasCastled;
+    private boolean whiteHasCastled;
+
 
     public ChessGame() {
         this.currentTurn = TeamColor.WHITE;
@@ -22,6 +25,8 @@ public class ChessGame {
         this.isInStalemate = false;
         this.isInCheckmate = false;
         this.isInCheck = false;
+        this.whiteHasCastled = false;
+        this.blackHasCastled = false;
     }
 
     /**
