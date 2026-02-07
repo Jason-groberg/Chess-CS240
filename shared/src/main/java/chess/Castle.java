@@ -26,12 +26,14 @@ public class Castle {
     public boolean canCastleKingSide(ChessGame.TeamColor teamColor){
         if(teamColor == ChessGame.TeamColor.WHITE){
             if(!whiteKingMoved&&!whiteRook2Moved){
-                return gameBoard.getPiece(new ChessPosition(1,6))==null && gameBoard.getPiece(new ChessPosition(1,7))==null;
+                return gameBoard.getPiece(new ChessPosition(1,6))==null &&
+                        gameBoard.getPiece(new ChessPosition(1,7))==null;
             }
         }
         else {
             if(!blackKingMoved&&!blackRook2Moved){
-                return gameBoard.getPiece(new ChessPosition(8,6))==null && gameBoard.getPiece(new ChessPosition(8,7))==null;
+                return gameBoard.getPiece(new ChessPosition(8,6))==null &&
+                        gameBoard.getPiece(new ChessPosition(8,7))==null;
             }
         }
         return false;
