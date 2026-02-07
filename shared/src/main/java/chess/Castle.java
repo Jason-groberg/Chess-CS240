@@ -78,7 +78,7 @@ public class Castle {
         }
         if (position.equals(new ChessPosition(8, 1))){
             blackRook1Moved = true;
-            }
+        }
     }
 
     private void checkCaptured(ChessPosition pos) {
