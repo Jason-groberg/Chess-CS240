@@ -15,11 +15,6 @@ public class Castle {
     public Castle(Collection<ChessMove> gameMoves, ChessBoard gameBoard){
         this.gameMoves = gameMoves;
         this.gameBoard = gameBoard;
-        resetBools();
-
-    }
-
-    private void resetBools() {
         this.whiteRook1Moved = false;
         this.whiteRook2Moved = false;
         this.whiteKingMoved = false;
@@ -58,13 +53,11 @@ public class Castle {
         return false;
     }
 
-    public void updateMoves() {
-        for (ChessMove move : gameMoves) {
-            ChessPosition start = move.getStartPosition();
-            ChessPosition end = move.getEndPosition();
+    public void updateMoves(ChessMove gameMove) {
+            ChessPosition start = gameMove.getStartPosition();
+            ChessPosition end = gameMove.getEndPosition();
             checkMoved(start);
             checkCaptured(end);
-        }
     }
 
     private void checkMoved(ChessPosition position) {

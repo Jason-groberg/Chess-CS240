@@ -17,7 +17,7 @@ public class ChessGame {
     private boolean isInStalemate;
     private TeamColor currentTurn;
     Collection<ChessMove> gameMoves;
-    Castle canCastle;
+    private Castle canCastle;
 
     public ChessGame() {
         this.currentTurn = TeamColor.WHITE;
@@ -26,6 +26,7 @@ public class ChessGame {
         this.isInCheckmate = false;
         this.isInCheck = false;
         this.gameMoves = new ArrayList<>();
+        this.canCastle = new Castle(gameMoves, currentBoard);
     }
 
     public Collection<ChessMove> getGameMoves() {
@@ -87,10 +88,11 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
+
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        canCastle = new Castle(gameMoves, currentBoard);
         ChessPiece piece = currentBoard.getPiece(startPosition);
         if(piece.getPieceType() == null){return List.of();}
+        canCastle.setGameBoard(currentBoard);
         Collection<ChessMove> allMoves = piece.pieceMoves(currentBoard, startPosition);
         Collection<ChessMove> legalMoves = new ArrayList<>();
         for(ChessMove move : allMoves){
@@ -144,6 +146,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        canCastle.setGameBoard(this.currentBoard);
         ChessPiece piece = currentBoard.getPiece(move.getStartPosition());
         if (piece == null) {
                 throw new InvalidMoveException("No piece at position: " + move.getStartPosition());
@@ -169,7 +172,7 @@ public class ChessGame {
         }
 
         gameMoves.add(move);
-        canCastle.updateMoves();
+        canCastle.updateMoves(move);
         changeTurn();
     }
 
