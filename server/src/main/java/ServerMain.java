@@ -2,9 +2,12 @@ import server.Server;
 
 public class ServerMain {
     public static void main(String[] args) {
-        Server server = new Server();
-        server.run(8080);
+        int requestedPort = Integer.parseInt(args[0]);
 
-        System.out.println("CS 240 Chess Server");
+        Server server = new Server();
+        server.run(requestedPort);
+
+
+        System.out.println("CS 240 Chess Server is running of port" + requestedPort);
     }
 }
