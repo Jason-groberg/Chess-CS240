@@ -7,13 +7,16 @@ import service.RegisterService;
 public class RegisterHandler {
     public static void serviceRegister(Context ctx){
         try{
+
             RegisterRequest request = new RegisterRequest(ctx);
 
-            RegisterService service = new RegisterService();
+            RegisterService service = new RegisterService(request);
 
             service.registerUser(request);
 
-
+        }
+        catch (Error e){
+            e.getMessage();
         }
     }
 
