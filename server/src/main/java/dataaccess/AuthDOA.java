@@ -1,0 +1,13 @@
+package dataaccess;
+
+import model.AuthData;
+
+
+public interface AuthDOA {
+    void clear() throws DataAccessException;
+    void insertAuth(AuthData newAuthData) throws DataAccessException;
+    String createAuth();
+    AuthData getAuth(String authToken) throws DataAccessException;
+    void deleteAuth(String authToken) throws DataAccessException;
+
+}

@@ -15,5 +15,4 @@ public class DataBases {
     //AuthData username as key
     public static Map<String, AuthData> authDatabase = new HashMap<>();
 
-
 }

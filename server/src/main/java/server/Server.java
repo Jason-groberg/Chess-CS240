@@ -21,7 +21,7 @@ public class Server {
 
     public void createHandlers(Javalin javalinServer){
         javalinServer.delete("/db", ClearHandler::serviceClear);
-        javlinServer.post("/user", RegisterHandler::serviceRegister);
+        javalinServer.post("/user", RegisterHandler::serviceRegister);
 
     }
 
