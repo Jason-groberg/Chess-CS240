@@ -1,12 +1,9 @@
 package server;
 import Parser.JsonDecoder;
-import Requests.LoginRequest;
 import Requests.LogoutRequest;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import dataaccess.UserNotFoundExecption;
 import io.javalin.http.Context;
-import service.LoginService;
 import service.LogoutService;
 
 

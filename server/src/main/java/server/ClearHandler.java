@@ -2,7 +2,7 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 import service.ClearService;
-import Results.ClearResult;
+
 
 public class ClearHandler {
         public static void serviceClear(Context ctx) throws Exception {

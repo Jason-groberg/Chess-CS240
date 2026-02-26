@@ -19,7 +19,7 @@ public class LoginService {
             throw new UserNotFoundExecption("Error: username not found");
         }
         UserData userData = userDoa.getUser(request.username());
-        if(userData.password() != request.password()){
+        if(!userData.password().equalsIgnoreCase(request.password())){
             throw new DataAccessException("Error: unauthorized, password incorrect");
         }
         String authToken = authDao.createAuth();
