@@ -1,20 +1,20 @@
 package server;
+import com.google.gson.Gson;
 import io.javalin.http.Context;
 import service.ClearService;
 import Results.ClearResult;
 
 public class ClearHandler {
-        public static void serviceClear(Context ctx) {
+        public static void serviceClear(Context ctx) throws Exception {
             try {
                 ClearService service = new ClearService();
                 service.clear();
-
                 ctx.status(200);
-                ctx.json(new ClearResult());
+                ctx.result("{}");
             }
             catch (Exception e) {
                 ctx.status(500);
-                ctx.result("{ \"message\": \"Error: " + e.getMessage() + "\"}");
+                ctx.result(new Gson().toJson(e));
             }
         }
 }
