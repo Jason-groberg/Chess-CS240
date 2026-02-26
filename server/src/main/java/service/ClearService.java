@@ -12,9 +12,15 @@ public class ClearService {
         this.gameDao = new GameMemoryDAO();
 
     }
+
     public void clear() throws Exception {
-        userDao.clear();
-        authDao.clear();
-        gameDao.clear();
+        try {
+            userDao.clear();
+            authDao.clear();
+            gameDao.clear();
+        }
+        catch (DataAccessException e) {
+            throw new Exception();
+        }
     }
 }

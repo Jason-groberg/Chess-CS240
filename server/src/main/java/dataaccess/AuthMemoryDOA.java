@@ -27,4 +27,12 @@ public class AuthMemoryDOA implements AuthDOA{
     public void deleteAuth(String token){
         DataBases.authDatabase.remove(token);
     }
+
+    @Override
+    public boolean isAuthorized(String authToken){
+        if(DataBases.authDatabase.get(authToken).equals(authToken)){
+            return true;
+        }
+        return false;
+    }
 }

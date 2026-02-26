@@ -4,6 +4,7 @@ import Requests.RegisterRequest;
 import Results.RegisterResult;
 import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
+import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import service.RegisterService;
@@ -13,7 +14,7 @@ public class RegisterHandler {
         try{
             RegisterRequest request = JsonDecoder.makeRegisterRequest(ctx);
             if(request.username() == null || request.email() == null || request.password()==null){
-                throw new DataAccessException("Error: bad request");
+                throw new BadRequestException("Error: bad request");
             }
             RegisterService service = new RegisterService();
             RegisterResult result = service.registerUser(request);
@@ -24,7 +25,7 @@ public class RegisterHandler {
             ctx.status(403);
             ctx.result(new Gson().toJson(e));
         }
-        catch(DataAccessException e) {
+        catch(BadRequestException e) {
             ctx.status(400);
             ctx.result(new Gson().toJson(e));
         }

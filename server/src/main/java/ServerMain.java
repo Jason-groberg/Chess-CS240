@@ -2,7 +2,7 @@ import server.Server;
 
 public class ServerMain {
     public static void main(String[] args) {
-        int requestedPort = Integer.parseInt(args[0]);
+        int requestedPort = 8080;
 
         Server server = new Server();
         server.run(requestedPort);

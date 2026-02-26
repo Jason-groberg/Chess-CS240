@@ -9,8 +9,7 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         createHandlers(javalin);
-        // Register your endpoints and exception handlers here.
-        createHandlers(javalin);
+
 
     }
 
@@ -24,6 +23,8 @@ public class Server {
         javalinServer.post("/user", RegisterHandler::serviceRegister);
         javalinServer.post("/session", LoginHandler::serviceLogin);
         javalinServer.delete("/session", LogoutHandler::serviceLogout);
+        javalinServer.get("/game", ListHandler::serviceList);
+        javalinServer.post("/game", CreateGameHandler::serviceCreateGame);
     }
 
     public void stop() {

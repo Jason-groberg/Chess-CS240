@@ -1,6 +1,7 @@
 package dataaccess;
 import model.GameData;
 import java.util.Collection;
+import java.util.Random;
 
 public class GameMemoryDAO implements GameDOA{
     @Override
@@ -24,5 +25,10 @@ public class GameMemoryDAO implements GameDOA{
     public void updateGame(int gameID, GameData newGame){
         DataBases.gameDataBase.remove(gameID);
         DataBases.gameDataBase.put(gameID,newGame);
+    }
+    @Override
+    public int createGameID(){
+        Random random = new Random();
+        return random.nextInt(1000,100000);
     }
 }
