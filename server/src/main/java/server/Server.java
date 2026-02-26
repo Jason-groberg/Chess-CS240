@@ -23,7 +23,7 @@ public class Server {
         javalinServer.delete("/db", ClearHandler::serviceClear);
         javalinServer.post("/user", RegisterHandler::serviceRegister);
         javalinServer.post("/session", LoginHandler::serviceLogin);
-
+        javalinServer.delete("/session", LogoutHandler::serviceLogout);
     }
 
     public void stop() {
