@@ -1,11 +1,8 @@
 package service;
-
 import Requests.AuthRequest;
 import Results.ListResult;
 import dataaccess.*;
-import model.AuthData;
 import model.GameData;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -20,8 +17,7 @@ public class ListService {
 
     public Collection<ListResult> listGames(AuthRequest request) throws Exception {
         try {
-            AuthData authData = authDao.getAuth(request.authToken());
-            if (!authData.authToken().equals(request.authToken())) {
+            if(!authDao.isAuthorized(request.authToken())){
                 throw new UnauthorizedException("Error: unauthorized");
             }
             Collection<GameData> gameList = gameDao.listGames();

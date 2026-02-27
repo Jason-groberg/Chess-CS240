@@ -10,5 +10,5 @@ public interface AuthDOA {
     AuthData getAuth(String authToken) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
     boolean isAuthorized(String authToken) throws DataAccessException;
-
+    String getAuthToken(String authToken);
 }

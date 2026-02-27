@@ -12,8 +12,7 @@ public class LogoutService {
 
     public void logoutUser(AuthRequest request) throws Exception {
         try {
-            AuthData authData = authDao.getAuth(request.authToken());
-            if (!authData.authToken().equals(request.authToken())) {
+            if(!authDao.isAuthorized(request.authToken())){
                 throw new UnauthorizedException("Error: unauthorized");
             }
             authDao.deleteAuth(request.authToken());

@@ -1,10 +1,9 @@
 package Parser;
-import Requests.CreateGameRequest;
-import Requests.LoginRequest;
-import Requests.AuthRequest;
+import Requests.*;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
-import Requests.RegisterRequest;
+
+import java.util.Locale;
 
 public class JsonDecoder {
     public static RegisterRequest makeRegisterRequest(Context ctx){
@@ -17,9 +16,16 @@ public class JsonDecoder {
         String token = ctx.header("Authorization");
         return new AuthRequest(token);
     }
+    public static String getAuthToken(Context ctx){
+        String token = ctx.header("Authorization");
+        return token;
+    }
     public static CreateGameRequest makeCreateGameRequest(Context ctx){
         String gameName = ctx.body();
         String token = ctx.header("Authorization");
         return new CreateGameRequest(token,gameName);
+    }
+    public static JoinGameRequest makeJoinRequest(Context ctx){
+        return new Gson().fromJson(ctx.body().toLowerCase(Locale.ROOT), JoinGameRequest.class);
     }
 }

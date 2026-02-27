@@ -1,5 +1,7 @@
 package dataaccess;
 import model.GameData;
+
+import javax.xml.crypto.Data;
 import java.util.Collection;
 import java.util.Random;
 
@@ -10,5 +12,6 @@ public interface GameDOA {
     Collection<GameData> listGames() throws DataAccessException;
     void updateGame(int gameID, GameData newGame) throws DataAccessException;
     int createGameID();
-
+    boolean gameExists(int gameID) throws DataAccessException;
+    Collection<String> checkPlayers(int gameID) throws DataAccessException;
 }
