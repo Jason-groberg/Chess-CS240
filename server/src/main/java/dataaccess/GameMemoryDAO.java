@@ -15,11 +15,11 @@ public class GameMemoryDAO implements GameDOA{
 
     @Override
     public void createGame(GameData newGame){
-        gameDataBase.put(newGame.GameID(), newGame);
+        gameDataBase.put(newGame.gameID(), newGame);
     }
     @Override
-    public GameData getGame(int GameID){
-        return gameDataBase.get(GameID);
+    public GameData getGame(int gameID){
+        return gameDataBase.get(gameID);
     }
     @Override
     public Collection<GameData> listGames(){

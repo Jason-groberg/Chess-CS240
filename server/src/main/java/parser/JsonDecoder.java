@@ -1,14 +1,12 @@
-package Parser;
-import Requests.*;
+package parser;
+import requests.*;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 
-
-
 public class JsonDecoder {
 
-    private static Gson serializer = new Gson();
+    private final static Gson serializer = new Gson();
 
     public static RegisterRequest makeRegisterRequest(Context ctx){
         return serializer.fromJson(ctx.body(), RegisterRequest.class);
@@ -21,12 +19,14 @@ public class JsonDecoder {
         return ctx.header("Authorization");
 
     }
+
     public static CreateGameRequest makeCreateGameRequest(Context ctx){
         return serializer.fromJson(ctx.body(), CreateGameRequest.class);
     }
+
     public static JoinGameRequest makeJoinRequest(Context ctx){
-        record joinBody(String playerColor, int gameID){}
-        joinBody body = serializer.fromJson(ctx.body(), joinBody.class);
+        record JoinBody(String playerColor, int gameID){}
+        JoinBody body = serializer.fromJson(ctx.body(), JoinBody.class);
         if(body.playerColor()!= null && body.playerColor().equalsIgnoreCase("WHITE")){
             return new JoinGameRequest(ChessGame.TeamColor.WHITE, body.gameID());
         }

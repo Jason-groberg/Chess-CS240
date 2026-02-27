@@ -1,5 +1,5 @@
 package server;
-import Parser.JsonDecoder;
+import parser.JsonDecoder;
 import com.google.gson.Gson;
 import dataaccess.UnauthorizedException;
 import io.javalin.http.Context;

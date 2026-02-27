@@ -1,7 +1,7 @@
 package server;
-import Parser.JsonDecoder;
-import Requests.CreateGameRequest;
-import Results.CreateGameResult;
+import parser.JsonDecoder;
+import requests.CreateGameRequest;
+import results.CreateGameResult;
 import com.google.gson.Gson;
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedException;

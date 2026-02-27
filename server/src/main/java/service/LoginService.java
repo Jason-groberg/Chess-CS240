@@ -1,6 +1,6 @@
 package service;
-import Requests.LoginRequest;
-import Results.LoginResult;
+import requests.LoginRequest;
+import results.LoginResult;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;

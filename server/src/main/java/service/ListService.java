@@ -1,6 +1,6 @@
 package service;
-import Results.ListResult;
-import Results.ListofListResult;
+import results.ListResult;
+import results.ListofListResult;
 import dataaccess.*;
 import model.GameData;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class ListService {
             Collection<ListResult> results = new ArrayList<>();
             gameList.forEach(game -> {
                 ListResult result = new ListResult(
-                        game.GameID(),
+                        game.gameID(),
                         game.whiteUsername(),
                         game.blackUsername(),
                         game.gameName()

@@ -1,5 +1,5 @@
 package service;
-import Requests.JoinGameRequest;
+import requests.JoinGameRequest;
 import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
@@ -28,12 +28,12 @@ public class JoinGameService {
             GameData requestedGame = gameDao.getGame(request.gameID());
 
             if(playerColor.equals(ChessGame.TeamColor.BLACK) && requestedGame.blackUsername()==null){
-                GameData blackGame = new GameData(requestedGame.GameID(), requestedGame.whiteUsername(),
+                GameData blackGame = new GameData(requestedGame.gameID(), requestedGame.whiteUsername(),
                         username, requestedGame.gameName(),requestedGame.game());
                 gameDao.updateGame(request.gameID(), blackGame);
             }
             else if(playerColor.equals(ChessGame.TeamColor.WHITE) && requestedGame.whiteUsername()==null){
-                GameData whiteGame = new GameData(requestedGame.GameID(), username,
+                GameData whiteGame = new GameData(requestedGame.gameID(), username,
                         requestedGame.blackUsername(), requestedGame.gameName(),requestedGame.game());
                 gameDao.updateGame(request.gameID(), whiteGame);
             }

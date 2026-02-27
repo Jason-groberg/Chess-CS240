@@ -1,6 +1,6 @@
 package server;
-import Parser.JsonDecoder;
-import Requests.JoinGameRequest;
+import parser.JsonDecoder;
+import requests.JoinGameRequest;
 import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;

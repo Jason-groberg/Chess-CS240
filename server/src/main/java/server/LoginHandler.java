@@ -1,7 +1,7 @@
 package server;
-import Parser.JsonDecoder;
-import Requests.LoginRequest;
-import Results.LoginResult;
+import parser.JsonDecoder;
+import requests.LoginRequest;
+import results.LoginResult;
 import com.google.gson.Gson;
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedException;
