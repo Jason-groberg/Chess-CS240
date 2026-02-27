@@ -1,12 +1,15 @@
 package dataaccess;
 import model.AuthData;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class AuthMemoryDOA implements AuthDOA{
+
+    public static Map<String, AuthData> authDatabase = new HashMap<>();
+
     @Override
-    public void clear(){
-        DataBases.authDatabase.clear();
-    }
+    public void clear(){authDatabase.clear();}
 
     @Override
     public String createAuth(){
@@ -15,22 +18,22 @@ public class AuthMemoryDOA implements AuthDOA{
 
     @Override
     public void insertAuth(AuthData newAuthData){
-        DataBases.authDatabase.put(newAuthData.authToken(), newAuthData);
+        authDatabase.put(newAuthData.authToken(), newAuthData);
     }
 
     @Override
     public AuthData getAuth(String token){
-        return DataBases.authDatabase.get(token);
+        return authDatabase.get(token);
     }
 
     @Override
     public void deleteAuth(String token){
-        DataBases.authDatabase.remove(token);
+        authDatabase.remove(token);
     }
 
     @Override
     public boolean isAuthorized(String authToken){
-        if(DataBases.authDatabase.containsKey(authToken)){
+        if(authDatabase.containsKey(authToken)){
             return true;
         }
         return false;

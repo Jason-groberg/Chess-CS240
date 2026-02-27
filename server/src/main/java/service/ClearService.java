@@ -10,7 +10,6 @@ public class ClearService {
         this.userDao = new UserMemoryDOA();
         this.authDao = new AuthMemoryDOA();
         this.gameDao = new GameMemoryDAO();
-
     }
 
     public void clear() throws Exception {

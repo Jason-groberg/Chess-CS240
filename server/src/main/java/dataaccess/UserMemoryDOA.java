@@ -1,26 +1,28 @@
 package dataaccess;
 import model.UserData;
-
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserMemoryDOA implements UserDOA {
+    public static Map<String, UserData> userDatabase = new HashMap<>();
     @Override
     public void clear(){
-        DataBases.userDatabase.clear();
+        userDatabase.clear();
     }
 
     @Override
     public UserData getUser(String username) {
-        return DataBases.userDatabase.get(username);
+        return userDatabase.get(username);
     }
 
     @Override
     public void insertUser(UserData newUser) {
-        DataBases.userDatabase.put(newUser.username(), newUser);
+        userDatabase.put(newUser.username(), newUser);
     }
 
     @Override
     public boolean containsUser(String username){
-        if(DataBases.userDatabase.containsKey(username)){
+        if(userDatabase.containsKey(username)){
             return true;
         }
         return false;

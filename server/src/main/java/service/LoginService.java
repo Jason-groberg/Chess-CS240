@@ -25,7 +25,7 @@ public class LoginService {
                 throw new UnauthorizedException("Error: unauthorized, password incorrect");
             }
             String authToken = authDao.createAuth();
-            AuthData authData = new AuthData(request.username(), authToken);
+            AuthData authData = new AuthData(authToken, request.username());
             authDao.insertAuth(authData);
             return new LoginResult(request.username(), authToken);
         }

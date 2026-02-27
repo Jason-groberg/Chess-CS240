@@ -14,11 +14,12 @@ public class CreateGameHandler {
     public static void serviceCreateGame(Context ctx){
         try{
             CreateGameRequest request = JsonDecoder.makeCreateGameRequest(ctx);
-            if(request.authToken()==null||request.gameName()==null){
+            String authToken = JsonDecoder.getAuthToken(ctx);
+            if(authToken == null || request.gameName()==null){
                 throw new BadRequestException("Error: bad request");
             }
             CreateGameService service = new CreateGameService();
-            CreateGameResult result = service.createGame(request);
+            CreateGameResult result = service.createGame(request, authToken);
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
         }

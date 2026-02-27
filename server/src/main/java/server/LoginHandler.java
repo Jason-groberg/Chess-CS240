@@ -4,7 +4,6 @@ import Requests.LoginRequest;
 import Results.LoginResult;
 import com.google.gson.Gson;
 import dataaccess.BadRequestException;
-import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
 import dataaccess.UserNotFoundExecption;
 import io.javalin.http.Context;

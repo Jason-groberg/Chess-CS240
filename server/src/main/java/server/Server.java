@@ -9,8 +9,6 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         createHandlers(javalin);
-
-
     }
 
     public int run(int desiredPort) {

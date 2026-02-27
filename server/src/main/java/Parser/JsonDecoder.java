@@ -18,14 +18,11 @@ public class JsonDecoder {
     }
 
     public static String getAuthToken(Context ctx){
-        String token = ctx.header("Authorization");
-        return token;
+        return ctx.header("Authorization");
+
     }
     public static CreateGameRequest makeCreateGameRequest(Context ctx){
-        record gameBody(String gameName){}
-        gameBody body = serializer.fromJson(ctx.body(), gameBody.class);
-        String token = ctx.header("Authorization");
-        return new CreateGameRequest(token, body.gameName());
+        return serializer.fromJson(ctx.body(), CreateGameRequest.class);
     }
     public static JoinGameRequest makeJoinRequest(Context ctx){
         record joinBody(String playerColor, int gameID){}

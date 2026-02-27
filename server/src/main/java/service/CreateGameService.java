@@ -14,9 +14,9 @@ public class CreateGameService {
         this.authDao = new AuthMemoryDOA();
     }
 
-    public CreateGameResult createGame(CreateGameRequest request) throws Exception{
+    public CreateGameResult createGame(CreateGameRequest request, String authToken) throws Exception{
         try{
-            if(!authDao.isAuthorized(request.authToken())){
+            if(!authDao.isAuthorized(authToken)){
                 throw new UnauthorizedException("Error: unauthorized");
             }
             int Id = gameDao.createGameID();
