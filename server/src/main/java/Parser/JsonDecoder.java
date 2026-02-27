@@ -26,6 +26,6 @@ public class JsonDecoder {
         return new CreateGameRequest(token,gameName);
     }
     public static JoinGameRequest makeJoinRequest(Context ctx){
-        return new Gson().fromJson(ctx.body().toLowerCase(Locale.ROOT), JoinGameRequest.class);
+        return new Gson().fromJson(ctx.body(), JoinGameRequest.class);
     }
 }
