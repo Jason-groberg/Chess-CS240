@@ -17,4 +17,12 @@ public class UserMemoryDOA implements UserDOA {
     public void insertUser(UserData newUser) {
         DataBases.userDatabase.put(newUser.username(), newUser);
     }
+
+    @Override
+    public boolean containsUser(String username){
+        if(DataBases.userDatabase.containsKey(username)){
+            return true;
+        }
+        return false;
+    }
 }

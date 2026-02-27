@@ -35,8 +35,7 @@ public class GameMemoryDAO implements GameDOA{
     }
     @Override
     public boolean gameExists(int gameID){
-        GameData game = getGame(gameID);
-        if(game.GameID() == gameID){
+        if(DataBases.gameDataBase.containsKey(gameID)){
             return true;
         }
         return false;
@@ -49,13 +48,13 @@ public class GameMemoryDAO implements GameDOA{
         String white = gameData.whiteUsername();
         String black = gameData.blackUsername();
         if(white != null){
-            players.add("white");
+            players.add("WHITE");
         }
         else{
             players.add(null);
         }
         if(black != null){
-            players.add("black");
+            players.add("BLACK");
         }
         else{
             players.add(null);

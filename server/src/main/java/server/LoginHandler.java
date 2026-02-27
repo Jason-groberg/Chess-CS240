@@ -10,6 +10,8 @@ import dataaccess.UserNotFoundExecption;
 import io.javalin.http.Context;
 import service.LoginService;
 
+import java.util.Map;
+
 public class LoginHandler {
 
     public static void serviceLogin(Context ctx){
@@ -25,19 +27,18 @@ public class LoginHandler {
         }
         catch(BadRequestException e){
             ctx.status(400);
-            ctx.result(new Gson().toJson(e));
-        }
+            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));        }
         catch (UserNotFoundExecption e){
             ctx.status(401);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         }
         catch(UnauthorizedException e){
             ctx.status(401);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         }
         catch (Exception e){
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         }
     }
 }

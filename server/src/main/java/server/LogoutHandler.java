@@ -1,32 +1,29 @@
 package server;
 import Parser.JsonDecoder;
-import Requests.AuthRequest;
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
 import io.javalin.http.Context;
 import service.LogoutService;
-
+import java.util.Map;
 
 public class LogoutHandler {
 
     public static void serviceLogout(Context ctx){
         try{
-            AuthRequest request = JsonDecoder.makeAuthRequest(ctx);
+            String authToken = JsonDecoder.getAuthToken(ctx);
             LogoutService service = new LogoutService();
-            service.logoutUser(request);
+            service.logoutUser(authToken);
             ctx.status(200);
             ctx.result("{}");
-
         }
 
         catch(UnauthorizedException e){
             ctx.status(401);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         }
         catch(Exception e){
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         }
     }
 }
