@@ -21,10 +21,8 @@ public class UserMemoryDOA implements UserDOA {
     }
 
     @Override
-    public boolean containsUser(String username){
-        if(userDatabase.containsKey(username)){
-            return true;
-        }
-        return false;
+    public boolean containsUser(String username) {
+        return userDatabase.containsKey(username);
     }
+
 }

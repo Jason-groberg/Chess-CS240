@@ -7,7 +7,7 @@ import java.util.Map;
 
 
 public class ClearHandler {
-        public static void serviceClear(Context ctx) throws Exception {
+        public static void serviceClear(Context ctx) {
             try {
                 ClearService service = new ClearService();
                 service.clear();

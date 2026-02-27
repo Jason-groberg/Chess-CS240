@@ -33,9 +33,6 @@ public class AuthMemoryDOA implements AuthDOA{
 
     @Override
     public boolean isAuthorized(String authToken){
-        if(authDatabase.containsKey(authToken)){
-            return true;
-        }
-        return false;
+        return authDatabase.containsKey(authToken);
     }
 }

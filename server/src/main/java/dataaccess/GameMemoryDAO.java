@@ -37,9 +37,6 @@ public class GameMemoryDAO implements GameDOA{
     }
     @Override
     public boolean gameExists(int gameID){
-        if(gameDataBase.containsKey(gameID)){
-            return true;
-        }
-        return false;
+        return gameDataBase.containsKey(gameID);
     }
 }
