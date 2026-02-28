@@ -6,13 +6,13 @@ import io.javalin.http.Context;
 
 public class JsonDecoder {
 
-    private final static Gson serializer = new Gson();
+    private final static Gson SERIALIZER = new Gson();
 
     public static RegisterRequest makeRegisterRequest(Context ctx){
-        return serializer.fromJson(ctx.body(), RegisterRequest.class);
+        return SERIALIZER.fromJson(ctx.body(), RegisterRequest.class);
     }
     public static LoginRequest makeLoginRequest(Context ctx){
-        return serializer.fromJson(ctx.body(), LoginRequest.class);
+        return SERIALIZER.fromJson(ctx.body(), LoginRequest.class);
     }
 
     public static String getAuthToken(Context ctx){
@@ -21,12 +21,12 @@ public class JsonDecoder {
     }
 
     public static CreateGameRequest makeCreateGameRequest(Context ctx){
-        return serializer.fromJson(ctx.body(), CreateGameRequest.class);
+        return SERIALIZER.fromJson(ctx.body(), CreateGameRequest.class);
     }
 
     public static JoinGameRequest makeJoinRequest(Context ctx){
         record JoinBody(String playerColor, int gameID){}
-        JoinBody body = serializer.fromJson(ctx.body(), JoinBody.class);
+        JoinBody body = SERIALIZER.fromJson(ctx.body(), JoinBody.class);
         if(body.playerColor()!= null && body.playerColor().equalsIgnoreCase("WHITE")){
             return new JoinGameRequest(ChessGame.TeamColor.WHITE, body.gameID());
         }
