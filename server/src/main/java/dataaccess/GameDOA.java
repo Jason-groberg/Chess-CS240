@@ -3,7 +3,7 @@ import model.GameData;
 import java.util.Collection;
 
 public interface GameDOA {
-    void clear() throws DataAccessException;
+    void clear();
     void createGame(GameData newGame) throws DataAccessException;
     GameData getGame(int gameID) throws DataAccessException;
     Collection<GameData> listGames() throws DataAccessException;
