@@ -4,6 +4,7 @@ import results.RegisterResult;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import java.util.UUID;
 
 public class RegisterService {
 
@@ -15,6 +16,8 @@ public class RegisterService {
         this.authDOA = new AuthMemoryDOA();
     }
 
+    public String createAuthToken(){return UUID.randomUUID().toString();}
+
     public RegisterResult registerUser(RegisterRequest request) throws Exception {
         try{
              if(userDOA.containsUser(request.username())){
@@ -22,7 +25,7 @@ public class RegisterService {
              }
              UserData newUser = new UserData(request.username(), request.password(), request.email());
              userDOA.insertUser(newUser);
-             String authToken = authDOA.createAuth();
+             String authToken = createAuthToken();
              AuthData newAuthData = new AuthData(authToken, request.username());
              authDOA.insertAuth(newAuthData);
              return new RegisterResult(authToken, request.username());
