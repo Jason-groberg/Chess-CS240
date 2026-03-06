@@ -13,7 +13,7 @@ public class UserSqlDao implements UserDOA{
     }
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE userData";
+        String statement = "TRUNCATE userData";
         executeUpdate(statement);
 
     }
