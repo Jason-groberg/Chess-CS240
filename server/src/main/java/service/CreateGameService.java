@@ -10,9 +10,9 @@ public class CreateGameService {
     private final GameDOA gameDao;
     private final AuthDOA authDao;
 
-    public CreateGameService(){
-        this.gameDao = new GameMemoryDAO();
-        this.authDao = new AuthMemoryDOA();
+    public CreateGameService() throws DataAccessException{
+        this.gameDao = new GameSqlDao();
+        this.authDao = new AuthSqlDao();
     }
 
     public int createGameID(){

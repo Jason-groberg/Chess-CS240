@@ -9,9 +9,9 @@ public class JoinGameService {
     private final GameDOA gameDao;
     private final AuthDOA authDao;
 
-    public JoinGameService(){
-        this.gameDao = new GameMemoryDAO();
-        this.authDao = new AuthMemoryDOA();
+    public JoinGameService() throws DataAccessException{
+        this.gameDao = new GameSqlDao();
+        this.authDao = new AuthSqlDao();
     }
 
     public void joinGame(String authToken, JoinGameRequest request) throws Exception{

@@ -10,9 +10,9 @@ public class ListService {
     private final AuthDOA authDao;
     private final GameDOA gameDao;
 
-    public ListService(){
-        this.authDao = new AuthMemoryDOA();
-        this.gameDao = new GameMemoryDAO();
+    public ListService() throws DataAccessException{
+        this.authDao = new AuthSqlDao();
+        this.gameDao = new GameSqlDao();
     }
 
     public ListofListResult listGames(String authToken) throws Exception {

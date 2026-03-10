@@ -20,17 +20,17 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceTests {
-    private AuthMemoryDOA authDao;
+    private AuthDOA authDao;
     private GameDOA gameDao;
-    private UserMemoryDOA userDao;
+    private UserDOA userDao;
     private String token;
 
 
     @BeforeEach
-    public void setup() {
-        userDao = new UserMemoryDOA();
-        gameDao = new GameMemoryDAO();
-        authDao = new AuthMemoryDOA();
+    public void setup() throws DataAccessException {
+        userDao = new UserSqlDao();
+        gameDao = new GameSqlDao();
+        authDao = new AuthSqlDao();
         userDao.clear();
         authDao.clear();
         try {
@@ -86,7 +86,7 @@ class ServiceTests {
     @Test
     @Order(5)
     @DisplayName("Register Existing User")
-    void registerExistingUser() {
+    void registerExistingUser() throws Exception {
         RegisterService service = new RegisterService();
         RegisterRequest request = new RegisterRequest("jason", "anotherPassword","anotherEmail");
         assertThrows(AlreadyTakenException.class, () -> service.registerUser(request), "Should throw Already Taken Exception");
@@ -151,7 +151,7 @@ class ServiceTests {
     @Test
     @Order(11)
     @DisplayName("Created Game is Unauthorized")
-    void createGameUnauthorized(){
+    void createGameUnauthorized() throws Exception{
         String auth = token;
         authDao.insertAuth(new AuthData(auth, "user"));
         CreateGameService service = new CreateGameService();
