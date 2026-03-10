@@ -3,13 +3,13 @@ import model.GameData;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+
 
 public class GameMemoryDAO implements GameDOA{
     public static Map<Integer, GameData> gameDataBase = new HashMap<>();
 
     @Override
-    public void clear(){
+    public void clear() throws DataAccessException {
         gameDataBase.clear();
     }
 
@@ -29,11 +29,6 @@ public class GameMemoryDAO implements GameDOA{
     public void updateGame(int gameID, GameData newGame){
         gameDataBase.remove(gameID);
         gameDataBase.put(gameID,newGame);
-    }
-    @Override
-    public int createGameID(){
-        Random random = new Random();
-        return random.nextInt(1000,100000);
     }
     @Override
     public boolean gameExists(int gameID){

@@ -11,9 +11,9 @@ public class RegisterService {
     private final UserDOA userDOA;
     private final AuthDOA authDOA;
 
-    public RegisterService(){
-        this.userDOA = new UserMemoryDOA();
-        this.authDOA = new AuthMemoryDOA();
+    public RegisterService() throws DataAccessException{
+        this.userDOA = new UserSqlDao();
+        this.authDOA = new AuthSqlDao();
     }
 
     public String createAuthToken(){return UUID.randomUUID().toString();}

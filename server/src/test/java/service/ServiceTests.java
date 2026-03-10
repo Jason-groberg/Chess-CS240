@@ -15,12 +15,16 @@ import requests.LoginRequest;
 import requests.RegisterRequest;
 import results.*;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceTests {
     private AuthMemoryDOA authDao;
     private GameDOA gameDao;
     private UserMemoryDOA userDao;
+    private String token;
+
 
     @BeforeEach
     public void setup() {
@@ -29,8 +33,13 @@ class ServiceTests {
         authDao = new AuthMemoryDOA();
         userDao.clear();
         authDao.clear();
-        gameDao.clear();
+        try {
+            gameDao.clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         userDao.insertUser(new UserData("jason", "password", "groberg0@byu.edu"));
+        token = UUID.randomUUID().toString();
 
     }
 
@@ -48,7 +57,7 @@ class ServiceTests {
     @Test
     @Order(2)
     @DisplayName("BadLoginRequest password incorrect")
-    void loginUserWrongPassword(){
+    void loginUserWrongPassword() throws DataAccessException{
         LoginService service = new LoginService();
         LoginRequest request = new LoginRequest("jason", "incorrect");
         assertThrows(UnauthorizedException.class, () -> service.loginUser(request), "Service should throw UnauthorizedException");
@@ -57,7 +66,7 @@ class ServiceTests {
     @Test
     @Order(3)
     @DisplayName("Incorrect UserName")
-    void loginUserWrongUsername(){
+    void loginUserWrongUsername()throws DataAccessException{
         LoginService service = new LoginService();
         LoginRequest request = new LoginRequest("notJason", "password");
         assertThrows(UserNotFoundExecption.class, () -> service.loginUser(request), "Service Should throw Unauthorized Exception");
@@ -101,7 +110,7 @@ class ServiceTests {
     void unauthorizedLogout() throws Exception{
         RegisterService regService = new RegisterService();
         regService.registerUser(new RegisterRequest("User", "number","someEmail"));
-        String randomAuth = authDao.createAuth();
+        String randomAuth = regService.createAuthToken();
         LogoutService service = new LogoutService();
         assertThrows(UnauthorizedException.class, () -> service.logoutUser(randomAuth), "Should throw Unauthorized Exception");
     }
@@ -112,7 +121,7 @@ class ServiceTests {
     void listGamesSuccess()throws Exception{
         gameDao.createGame(new GameData(1234, "whitePlayer", "blackPlayer", "coolGame", new ChessGame()));
         ListService service = new ListService();
-        String randomAuth = authDao.createAuth();
+        String randomAuth = token;
         authDao.insertAuth(new AuthData(randomAuth, "user"));
         ListofListResult gameList = service.listGames(randomAuth);
         assertFalse(gameList.games().isEmpty());
@@ -124,7 +133,7 @@ class ServiceTests {
     void unauthorizedList()throws Exception{
         gameDao.createGame(new GameData(1234, "whitePlayer", "blackPlayer", "coolGame", new ChessGame()));
         ListService service = new ListService();
-        String randomAuth = authDao.createAuth();
+        String randomAuth = token;
         assertThrows(UnauthorizedException.class, () -> service.listGames(randomAuth));
     }
 
@@ -132,7 +141,7 @@ class ServiceTests {
     @Order(10)
     @DisplayName("Create New Game")
     void createNewGameSuccess()throws Exception{
-        String randomAuth = authDao.createAuth();
+        String randomAuth = token;
         authDao.insertAuth(new AuthData(randomAuth, "user"));
         CreateGameService service = new CreateGameService();
         CreateGameResult result = service.createGame(new CreateGameRequest("newGame"), randomAuth);
@@ -143,7 +152,7 @@ class ServiceTests {
     @Order(11)
     @DisplayName("Created Game is Unauthorized")
     void createGameUnauthorized(){
-        String auth = authDao.createAuth();
+        String auth = token;
         authDao.insertAuth(new AuthData(auth, "user"));
         CreateGameService service = new CreateGameService();
         assertThrows(UnauthorizedException.class, () -> service.createGame(new CreateGameRequest("coolCame1"), null));

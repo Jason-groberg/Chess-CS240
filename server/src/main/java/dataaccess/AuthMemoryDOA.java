@@ -12,11 +12,6 @@ public class AuthMemoryDOA implements AuthDOA{
     public void clear(){authDatabase.clear();}
 
     @Override
-    public String createAuth(){
-        return UUID.randomUUID().toString();
-    }
-
-    @Override
     public void insertAuth(AuthData newAuthData){
         authDatabase.put(newAuthData.authToken(), newAuthData);
     }

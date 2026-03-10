@@ -37,7 +37,7 @@ public class AuthSqlDao implements AuthDOA {
                     }
                 }
             }
-        }catch(Exception e){
+        }catch(SQLException e){
             throw new DataAccessException(e.getMessage());
         }
         return null;
@@ -61,9 +61,9 @@ public class AuthSqlDao implements AuthDOA {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS authData (
-            authToken VARCHAR(255) NOT NULL,
-            username VARCHAR(255) NOT NULL,
-            PRIMARY KEY ('authToken),
+                authToken VARCHAR(255) NOT NULL,
+                username VARCHAR(255) NOT NULL,
+                PRIMARY KEY (authToken)
             )
             """
     };
@@ -92,7 +92,6 @@ public class AuthSqlDao implements AuthDOA {
             throw new DataAccessException(e.getMessage());
         }
     }
-
 
     private void configureDatabase() throws DataAccessException{
         DatabaseManager.createDatabase();

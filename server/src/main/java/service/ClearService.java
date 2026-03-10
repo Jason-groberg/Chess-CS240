@@ -6,10 +6,10 @@ public class ClearService {
     private final AuthDOA authDao ;
     private final GameDOA gameDao;
 
-    public ClearService(){
-        this.userDao = new UserMemoryDOA();
-        this.authDao = new AuthMemoryDOA();
-        this.gameDao = new GameMemoryDAO();
+    public ClearService() throws DataAccessException{
+        this.userDao = new UserSqlDao();
+        this.authDao = new AuthSqlDao();
+        this.gameDao = new GameSqlDao();
     }
 
     public void clear() throws Exception {

@@ -4,7 +4,6 @@ import results.LoginResult;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
-
 import java.util.UUID;
 
 
@@ -12,9 +11,9 @@ public class LoginService {
     private final UserDOA userDoa;
     private final AuthDOA authDao;
 
-    public LoginService() {
-        this.authDao = new AuthMemoryDOA();
-        this.userDoa = new UserMemoryDOA();
+    public LoginService() throws DataAccessException {
+        this.authDao = new AuthSqlDao();
+        this.userDoa = new UserSqlDao();
     }
 
     public String createAuthToken(){return UUID.randomUUID().toString();}

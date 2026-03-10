@@ -5,8 +5,8 @@ import dataaccess.*;
 public class LogoutService {
     private final AuthDOA authDao;
 
-    public LogoutService(){
-        this.authDao = new AuthMemoryDOA();
+    public LogoutService()throws DataAccessException{
+        this.authDao = new AuthSqlDao();
     }
 
     public void logoutUser(String authToken) throws Exception {
