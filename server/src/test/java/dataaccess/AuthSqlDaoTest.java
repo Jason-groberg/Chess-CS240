@@ -40,7 +40,7 @@ class AuthSqlDaoTest {
 
     @Test
     @DisplayName("Negative insert auth")
-    void insertAuthNegative()throws DataAccessException{
+    void insertAuthNegative() {
         AuthData bad = new AuthData("tokensss", null);
         assertThrows(DataAccessException.class, () -> authDao.insertAuth(bad), "shouldn't accept authData with Null values");
 
@@ -76,7 +76,7 @@ class AuthSqlDaoTest {
 
     @Test
     @DisplayName("Delete Auth Negative")
-    void deleteAuthNegative() throws DataAccessException{
+    void deleteAuthNegative(){
         assertDoesNotThrow( () -> authDao.deleteAuth("notAtoken"));
 
     }

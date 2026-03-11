@@ -109,10 +109,10 @@ public class GameSqlDao implements GameDOA {
             try(PreparedStatement ps = conn.prepareStatement(statement,RETURN_GENERATED_KEYS)){
                 for(int i =0; i<params.length;i++){
                     Object param = params[i];
-                    if(param instanceof Integer p) ps.setInt(i+1, p);
-                    else if(param instanceof String p) ps.setString(i+1, p);
-                    else if(param instanceof ChessGame p) ps.setString(i+1, new Gson().toJson(p));
-                    else if(param==null) ps.setNull(i+1, java.sql.Types.VARCHAR);
+                    if(param instanceof Integer p){ ps.setInt(i+1, p);}
+                    else if(param instanceof String p){ ps.setString(i+1, p);}
+                    else if(param instanceof ChessGame p){ ps.setString(i+1, new Gson().toJson(p));}
+                    else if(param==null){ ps.setNull(i+1, java.sql.Types.VARCHAR);}
                 }
                 ps.executeUpdate();
 

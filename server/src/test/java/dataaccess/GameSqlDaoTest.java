@@ -96,7 +96,7 @@ class GameSqlDaoTest {
 
     @Test
     @DisplayName("Update Game negative")
-    void updateGameNegative()throws DataAccessException{
+    void updateGameNegative(){
         assertDoesNotThrow(()-> gameDao.updateGame(1111, new GameData(1111,null,"someone", "NotAGame", new ChessGame() )));
 
     }

@@ -170,7 +170,7 @@ class ServiceTests {
         JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, 1234);
         service.joinGame(authToken, request);
         GameData joinedGame = gameDao.getGame(1234);
-        assertEquals(joinedGame.whiteUsername(), "whitePlayer");
+        assertEquals("whitePlayer",joinedGame.whiteUsername());
     }
 
     @Test

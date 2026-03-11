@@ -5,7 +5,6 @@ import results.LoginResult;
 import com.google.gson.Gson;
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedException;
-import dataaccess.UserNotFoundExecption;
 import io.javalin.http.Context;
 import service.LoginService;
 
@@ -27,10 +26,6 @@ public class LoginHandler {
         catch(BadRequestException e){
             ctx.status(400);
             ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));        }
-        catch (UserNotFoundExecption e){
-            ctx.status(401);
-            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
-        }
         catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));

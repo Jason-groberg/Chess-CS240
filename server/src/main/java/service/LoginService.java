@@ -18,7 +18,7 @@ public class LoginService {
 
     public String createAuthToken(){return UUID.randomUUID().toString();}
 
-    public boolean verifyPassword(UserData user, String password) throws Exception{
+    public boolean verifyPassword(UserData user, String password) {
         return BCrypt.checkpw(password, user.password());
     }
 
