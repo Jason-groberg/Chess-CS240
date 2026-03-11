@@ -14,6 +14,7 @@ import requests.JoinGameRequest;
 import requests.LoginRequest;
 import requests.RegisterRequest;
 import results.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -33,12 +34,10 @@ class ServiceTests {
         authDao = new AuthSqlDao();
         userDao.clear();
         authDao.clear();
-        try {
-            gameDao.clear();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-        userDao.insertUser(new UserData("jason", "password", "groberg0@byu.edu"));
+        gameDao.clear();
+
+        String hashedPassword = BCrypt.hashpw("password", BCrypt.gensalt());
+        userDao.insertUser(new UserData("jason", hashedPassword, "groberg0@byu.edu"));
         token = UUID.randomUUID().toString();
 
     }
@@ -69,7 +68,7 @@ class ServiceTests {
     void loginUserWrongUsername()throws DataAccessException{
         LoginService service = new LoginService();
         LoginRequest request = new LoginRequest("notJason", "password");
-        assertThrows(UserNotFoundExecption.class, () -> service.loginUser(request), "Service Should throw Unauthorized Exception");
+        assertThrows(UnauthorizedException.class, () -> service.loginUser(request), "Service Should throw Unauthorized Exception");
     }
 
     @Test

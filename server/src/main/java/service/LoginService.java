@@ -7,7 +7,6 @@ import model.AuthData;
 import model.UserData;
 import java.util.UUID;
 
-
 public class LoginService {
     private final UserDOA userDoa;
     private final AuthDOA authDao;
@@ -19,18 +18,17 @@ public class LoginService {
 
     public String createAuthToken(){return UUID.randomUUID().toString();}
 
-    public boolean verifyPassword(String userName, String password) throws Exception{
-        String hashedPassword = userDoa.getUser(userName).password();
-        return BCrypt.checkpw(password, hashedPassword);
+    public boolean verifyPassword(UserData user, String password) throws Exception{
+        return BCrypt.checkpw(password, user.password());
     }
 
     public LoginResult loginUser(LoginRequest request) throws Exception{
         try {
-            if (userDoa.getUser(request.username()) == null) {
-                throw new UserNotFoundExecption("Error: username not found");
-            }
             UserData userData = userDoa.getUser(request.username());
-            if (!verifyPassword(request.username(), request.password())) {
+            if(userData == null) {
+                throw new UnauthorizedException("Error : Unauthorized");
+            }
+            if (!verifyPassword(userData, request.password())){
                 throw new UnauthorizedException("Error: unauthorized, password incorrect");
             }
             String authToken = createAuthToken();
