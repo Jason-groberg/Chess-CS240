@@ -1,4 +1,5 @@
 package service;
+import org.mindrot.jbcrypt.BCrypt;
 import requests.LoginRequest;
 import results.LoginResult;
 import dataaccess.*;
@@ -18,13 +19,18 @@ public class LoginService {
 
     public String createAuthToken(){return UUID.randomUUID().toString();}
 
+    public boolean verifyPassword(String userName, String password) throws Exception{
+        String hashedPassword = userDoa.getUser(userName).password();
+        return BCrypt.checkpw(password, hashedPassword);
+    }
+
     public LoginResult loginUser(LoginRequest request) throws Exception{
         try {
             if (userDoa.getUser(request.username()) == null) {
                 throw new UserNotFoundExecption("Error: username not found");
             }
             UserData userData = userDoa.getUser(request.username());
-            if (!userData.password().equalsIgnoreCase(request.password())) {
+            if (!verifyPassword(request.username(), request.password())) {
                 throw new UnauthorizedException("Error: unauthorized, password incorrect");
             }
             String authToken = createAuthToken();

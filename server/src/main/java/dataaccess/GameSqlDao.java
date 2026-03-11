@@ -70,7 +70,7 @@ public class GameSqlDao implements GameDOA {
     @Override
     public void updateGame(int gameID, GameData newGame) throws DataAccessException{
         String statement = "UPDATE gameData SET whiteUsername=?, blackUsername=?, gameName=?, chessGame=? WHERE gameID=?";
-        executeUpdate(statement, newGame.whiteUsername(), newGame.blackUsername(), newGame.gameName(), newGame.game());
+        executeUpdate(statement, newGame.whiteUsername(), newGame.blackUsername(), newGame.gameName(), newGame.game(), gameID);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class GameSqlDao implements GameDOA {
                     Object param = params[i];
                     if(param instanceof Integer p) ps.setInt(i+1, p);
                     else if(param instanceof String p) ps.setString(i+1, p);
-                    else if(param instanceof ChessGame p) ps.setString(i+1, p.toString());
+                    else if(param instanceof ChessGame p) ps.setString(i+1, new Gson().toJson(p));
                     else if(param==null) ps.setNull(i+1, java.sql.Types.VARCHAR);
                 }
                 ps.executeUpdate();
@@ -121,7 +121,7 @@ public class GameSqlDao implements GameDOA {
             }
             return 0;
         } catch(SQLException e){
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
 

@@ -23,7 +23,7 @@ public class LogoutHandler {
         }
         catch(Exception e){
             ctx.status(500);
-            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
+            ctx.result(new Gson().toJson(Map.of("message", "Error" + e.getMessage())));
         }
     }
 }

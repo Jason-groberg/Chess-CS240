@@ -5,6 +5,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import java.util.UUID;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class RegisterService {
 
@@ -18,12 +19,16 @@ public class RegisterService {
 
     public String createAuthToken(){return UUID.randomUUID().toString();}
 
+    public String hashPassword(String password){
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
     public RegisterResult registerUser(RegisterRequest request) throws Exception {
         try{
              if(userDOA.containsUser(request.username())){
                 throw new AlreadyTakenException("Error: already taken");
              }
-             UserData newUser = new UserData(request.username(), request.password(), request.email());
+             UserData newUser = new UserData(request.username(), hashPassword(request.password()), request.email());
              userDOA.insertUser(newUser);
              String authToken = createAuthToken();
              AuthData newAuthData = new AuthData(authToken, request.username());

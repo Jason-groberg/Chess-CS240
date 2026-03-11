@@ -42,7 +42,7 @@ public class JoinGameService {
             }
         }
         catch(DataAccessException e){
-            throw new Exception();
+            throw new Exception(e.getMessage());
         }
     }
 }
