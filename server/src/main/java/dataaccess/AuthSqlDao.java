@@ -5,12 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
-public class AuthSqlDao implements AuthDOA {
+public class AuthSqlDao extends SqlDaoManager implements AuthDOA {
 
     public AuthSqlDao() throws DataAccessException{
-        configureDatabase();
+        configureDatabase(createStatements);
     }
 
     @Override
@@ -50,7 +49,7 @@ public class AuthSqlDao implements AuthDOA {
     }
 
     @Override
-    public boolean isAuthorized(String authToken)throws DataAccessException{
+    public boolean isAuthorized(String authToken){
         try{
             return getAuth(authToken) !=null;
         } catch (DataAccessException e) {
@@ -72,37 +71,5 @@ public class AuthSqlDao implements AuthDOA {
         String authToken = rs.getString("authToken");
         String username = rs.getString("username");
         return new AuthData(authToken, username);
-    }
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try(Connection conn = DatabaseManager.getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement(statement,RETURN_GENERATED_KEYS)){
-                for(int i =0; i<params.length;i++){
-                    Object param = params[i];
-                    if(param instanceof String p){ ps.setString(i+1, p);}
-                    else if(param==null) {ps.setNull(i+1, java.sql.Types.VARCHAR);}
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if(rs.next()){return rs.getInt(1);}
-            }
-            return 0;
-        } catch(SQLException e){
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    private void configureDatabase() throws DataAccessException{
-        DatabaseManager.createDatabase();
-        try(Connection conn = DatabaseManager.getConnection()){
-            for (String statement : createStatements){
-                try(var preparedStatement = conn.prepareStatement(statement)){
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch(SQLException e){
-            throw new DataAccessException("Unable to configure Database");
-        }
     }
 }

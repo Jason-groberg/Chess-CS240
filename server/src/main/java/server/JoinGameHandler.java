@@ -4,7 +4,6 @@ import requests.JoinGameRequest;
 import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;
-import dataaccess.GameNotFoundException;
 import dataaccess.UnauthorizedException;
 import io.javalin.http.Context;
 import service.JoinGameService;
@@ -33,10 +32,6 @@ public class JoinGameHandler {
             ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         }
         catch(AlreadyTakenException e) {
-            ctx.status(403);
-            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
-        }
-        catch(GameNotFoundException e){
             ctx.status(403);
             ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         }

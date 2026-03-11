@@ -22,7 +22,7 @@ public class JoinGameService {
             AuthData authData = authDao.getAuth(authToken);
             String username = authData.userName();
             if(!gameDao.gameExists(request.gameID())){
-                throw new GameNotFoundException("Error: no game found with given ID");
+                throw new UnauthorizedException("Error: unauthorized");
             }
             ChessGame.TeamColor playerColor = request.playerColor();
             GameData requestedGame = gameDao.getGame(request.gameID());

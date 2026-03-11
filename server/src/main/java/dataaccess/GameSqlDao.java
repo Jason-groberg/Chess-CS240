@@ -9,12 +9,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-
-public class GameSqlDao implements GameDOA {
+public class GameSqlDao extends SqlDaoManager implements GameDOA {
 
     public GameSqlDao() throws DataAccessException{
-        configureDatabase();
+        configureDatabase(createStatements);
     }
 
     @Override
@@ -74,7 +72,7 @@ public class GameSqlDao implements GameDOA {
     }
 
     @Override
-    public boolean gameExists(int gameID) throws DataAccessException{
+    public boolean gameExists(int gameID) {
         try{
             return getGame(gameID) !=null;
         }catch(DataAccessException e) {
@@ -102,40 +100,6 @@ public class GameSqlDao implements GameDOA {
         String json = rs.getString("chessGame");
         ChessGame chessGame = new Gson().fromJson(json, ChessGame.class);
         return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
-    }
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try(Connection conn = DatabaseManager.getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement(statement,RETURN_GENERATED_KEYS)){
-                for(int i =0; i<params.length;i++){
-                    Object param = params[i];
-                    if(param instanceof Integer p){ ps.setInt(i+1, p);}
-                    else if(param instanceof String p){ ps.setString(i+1, p);}
-                    else if(param instanceof ChessGame p){ ps.setString(i+1, new Gson().toJson(p));}
-                    else if(param==null){ ps.setNull(i+1, java.sql.Types.VARCHAR);}
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if(rs.next()){return rs.getInt(1);}
-            }
-            return 0;
-        } catch(SQLException e){
-            throw new DataAccessException("Error: " + e.getMessage());
-        }
-    }
-
-    private void configureDatabase() throws DataAccessException{
-        DatabaseManager.createDatabase();
-        try(Connection conn = DatabaseManager.getConnection()){
-            for (String statement : createStatements){
-                try(var preparedStatement = conn.prepareStatement(statement)){
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch(SQLException e){
-            throw new DataAccessException("Unable to configure Database");
-        }
     }
 }
 

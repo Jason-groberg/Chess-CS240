@@ -4,12 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
-public class UserSqlDao implements UserDOA{
+public class UserSqlDao extends SqlDaoManager implements UserDOA{
 
     public UserSqlDao() throws DataAccessException {
-        configureDatabase();
+        configureDatabase(createStatements);
     }
     @Override
     public void clear() throws DataAccessException {
@@ -68,35 +67,4 @@ public class UserSqlDao implements UserDOA{
         return new UserData(username, password, email);
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try(Connection conn = DatabaseManager.getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement(statement,RETURN_GENERATED_KEYS)){
-                for(int i =0; i<params.length;i++){
-                    Object param = params[i];
-                    if(param instanceof String p){ ps.setString(i+1, p);}
-                    else if(param==null) {ps.setNull(i+1, java.sql.Types.VARCHAR);}
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if(rs.next()){return rs.getInt(1);}
-            }
-            return 0;
-        } catch(SQLException e){
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    private void configureDatabase() throws DataAccessException{
-        DatabaseManager.createDatabase();
-        try(Connection conn = DatabaseManager.getConnection()){
-            for (String statement : createStatements){
-                try(var preparedStatement = conn.prepareStatement(statement)){
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch(SQLException e){
-            throw new DataAccessException("Unable to configure Database");
-        }
-    }
 }
