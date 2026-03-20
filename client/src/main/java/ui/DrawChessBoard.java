@@ -1,5 +1,9 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
@@ -28,14 +32,14 @@ public class DrawChessBoard extends EscapeSequences {
     private static final String BLACK_ROOK = EscapeSequences.BLACK_ROOK;
     private static final String BLACK_PAWN = EscapeSequences.BLACK_PAWN;
     private static final String[] blackFiles = new String[]{" h ", " g ", " f ", " e ", " d ", " c ", " b ", " a "};
+    public static ChessBoard normalBoard = new ChessBoard();
 
     public static void main(String[] args){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
 
-        drawHeaders(out, false);
-
-        //drawChessBoard(out, true);
+        normalBoard.resetBoard();
+        drawChessBoard(out, normalBoard, true);
 
     }
 
@@ -54,78 +58,80 @@ public class DrawChessBoard extends EscapeSequences {
         out.println();
     }
 
-    private static void drawChessBoard(PrintStream out, boolean isWhite) {
+    private static void drawChessBoard(PrintStream out, ChessBoard board, boolean isWhite) {
+        drawHeaders(out, isWhite);
 
-        for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-
-            drawRowOfSquares(out);
-
-            if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                // Draw horizontal row separator.
-                drawHorizontalLine(out);
-                setBlack(out);
+        if(isWhite) {
+            for(int rank = BOARD_SIZE_IN_SQUARES; rank >=1; rank--){
+                drawChessRank(out, rank, board, isWhite);
             }
         }
+        else{
+            for(int rank = 1; rank <= BOARD_SIZE_IN_SQUARES; rank++){
+                drawChessRank(out, rank, board, isWhite);
+            }
+        }
+        drawHeaders(out, isWhite);
     }
 
 
-    private static void drawRowOfSquares(PrintStream out) {
-        for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
-            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-                setWhite(out);
+    private static void drawChessRank(PrintStream out, int rank, ChessBoard board, boolean isWhite) {
+        for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; squareRow++) {
 
-                if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
-                    int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
-                    int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
+            drawChessRankNumber(out, rank, squareRow);
 
-                    out.print(EMPTY.repeat(prefixLength));
-                    out.print(EMPTY.repeat(suffixLength));
+            for (int boardCol = 1; boardCol <= BOARD_SIZE_IN_SQUARES; boardCol++) {
+                int col;
+                if(isWhite){col = boardCol;}
+                else{col = 9 - boardCol;}
+                setSquareColor(out, rank, col);
+
+                if(squareRow ==1){
+                    ChessPiece piece = board.getPiece(new ChessPosition(rank, col));
+                    out.print(findPiece(piece));
                 }
-                else {
-                    out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
-                }
-
-                if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                    // Draw vertical column separator.
-                    setRed(out);
-                    out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
+                else{
+                    out.print(EMPTY);
                 }
 
-                setBlack(out);
             }
 
+            drawChessRankNumber(out, rank, squareRow);
             out.println();
+        }
+
+    }
+
+
+    private static void drawChessRankNumber(PrintStream out, int rank, int squareRow){
+        setHeader(out);
+        if(squareRow == 1){
+            out.print(EMPTY + rank + EMPTY);
+        }
+        else{
+            out.print(EMPTY);
         }
     }
 
-    private static void printPlayer(PrintStream out, String player) {
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_BLACK);
 
-        out.print(player);
+    private static void setSquareColor(PrintStream out, int rank, int col){
+        //square is white
+        if((rank + col) % 2 == 1){
+            out.print(SET_BG_COLOR_WHITE);
+            out.print(SET_TEXT_COLOR_BLACK);
+            out.print(SET_TEXT_BOLD);
 
-        setWhite(out);
-    }
-
-
-    private static void drawHorizontalLine(PrintStream out) {
-
-        int boardSizeInSpaces = BOARD_SIZE_IN_SQUARES * SQUARE_SIZE_IN_PADDED_CHARS +
-                (BOARD_SIZE_IN_SQUARES - 1) * LINE_WIDTH_IN_PADDED_CHARS;
-
-        for (int lineRow = 0; lineRow < LINE_WIDTH_IN_PADDED_CHARS; ++lineRow) {
-            setRed(out);
-            out.print(EMPTY.repeat(boardSizeInSpaces));
-
-            setBlack(out);
-            out.println();
+        }
+        else{
+            out.print(SET_BG_COLOR_DARK_GREEN);
+            out.print(SET_TEXT_COLOR_BLACK);
+            out.print(SET_TEXT_BOLD);
         }
     }
-
 
     private static void setHeader(PrintStream out){
         out.print(SET_BG_COLOR_LIGHT_GREY);
-        out.print(SET_TEXT_COLOR_WHITE);
+        out.print(SET_TEXT_COLOR_BLACK);
         out.print(SET_TEXT_ITALIC);
         out.print(SET_TEXT_BOLD);
     }
@@ -150,6 +156,35 @@ public class DrawChessBoard extends EscapeSequences {
         out.print(SET_TEXT_COLOR_DARK_GREY);
     }
 
+    private static String findPiece(ChessPiece piece){
+        if(piece == null){
+            return EMPTY;
+        }
+        String pieceChar = EMPTY;
+        ChessGame.TeamColor pieceColor = piece.getTeamColor();
+        ChessPiece.PieceType type = piece.getPieceType();
 
+        if(pieceColor == ChessGame.TeamColor.WHITE){
 
+            switch(type){
+                case PAWN: pieceChar = WHITE_PAWN; break;
+                case BISHOP: pieceChar = WHITE_BISHOP; break;
+                case KNIGHT: pieceChar = WHITE_KNIGHT; break;
+                case ROOK: pieceChar = WHITE_ROOK; break;
+                case KING: pieceChar = WHITE_KING; break;
+                case QUEEN: pieceChar = WHITE_QUEEN; break;
+            }
+        }
+        else{
+            switch(type){
+                case PAWN: pieceChar = BLACK_PAWN; break;
+                case BISHOP: pieceChar = BLACK_BISHOP; break;
+                case KNIGHT: pieceChar = BLACK_KNIGHT; break;
+                case ROOK: pieceChar = BLACK_ROOK; break;
+                case KING: pieceChar = BLACK_KING; break;
+                case QUEEN: pieceChar = BLACK_QUEEN; break;
+            }
+        }
+        return pieceChar;
+    }
 }
