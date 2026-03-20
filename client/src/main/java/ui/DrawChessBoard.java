@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 public class DrawChessBoard extends EscapeSequences {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 3;
-    private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
 
     //Padded Characters
     private static final String EMPTY = EscapeSequences.EMPTY;
@@ -22,7 +21,7 @@ public class DrawChessBoard extends EscapeSequences {
     private static final String WHITE_KNIGHT = EscapeSequences.WHITE_KNIGHT;
     private static final String WHITE_ROOK = EscapeSequences.WHITE_ROOK;
     private static final String WHITE_PAWN = EscapeSequences.WHITE_PAWN;
-    private static final String[] whiteFiles = new String[] {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
+    private static final String[] whiteFiles = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
 
     //Black Pieces
     private static final String BLACK_KING = EscapeSequences.BLACK_KING;
@@ -31,7 +30,7 @@ public class DrawChessBoard extends EscapeSequences {
     private static final String BLACK_KNIGHT = EscapeSequences.BLACK_KNIGHT;
     private static final String BLACK_ROOK = EscapeSequences.BLACK_ROOK;
     private static final String BLACK_PAWN = EscapeSequences.BLACK_PAWN;
-    private static final String[] blackFiles = new String[]{" h ", " g ", " f ", " e ", " d ", " c ", " b ", " a "};
+    private static final String[] blackFiles = new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
     public static ChessBoard normalBoard = new ChessBoard();
 
     public static void main(String[] args){
@@ -45,16 +44,14 @@ public class DrawChessBoard extends EscapeSequences {
 
     private static void drawHeaders(PrintStream out, boolean isWhite){
         setHeader(out);
-        out.print("   ");
         String[] files;
         if(isWhite){files = whiteFiles;}
         else{files = blackFiles;}
-
+        out.print(EMPTY + " " + EMPTY);
         for (String file : files){
-            out.print(file);
+            out.print(EMPTY +  file + "   ");
         }
-
-        out.print("   ");
+        out.print(EMPTY + " " + EMPTY);
         out.println();
     }
 
@@ -72,6 +69,7 @@ public class DrawChessBoard extends EscapeSequences {
             }
         }
         drawHeaders(out, isWhite);
+        out.println();
     }
 
 
@@ -87,21 +85,26 @@ public class DrawChessBoard extends EscapeSequences {
                 setSquareColor(out, rank, col);
 
                 if(squareRow ==1){
+                    out.print("  ");
                     ChessPiece piece = board.getPiece(new ChessPosition(rank, col));
                     out.print(findPiece(piece));
+                    out.print("  ");
                 }
                 else{
+                    out.print("  ");
                     out.print(EMPTY);
+                    out.print("  ");
                 }
 
             }
 
             drawChessRankNumber(out, rank, squareRow);
+            out.print(RESET_TEXT_COLOR);
             out.println();
+
         }
 
     }
-
 
     private static void drawChessRankNumber(PrintStream out, int rank, int squareRow){
         setHeader(out);
@@ -109,7 +112,7 @@ public class DrawChessBoard extends EscapeSequences {
             out.print(EMPTY + rank + EMPTY);
         }
         else{
-            out.print(EMPTY);
+            out.print(EMPTY + " " + EMPTY);
         }
     }
 
