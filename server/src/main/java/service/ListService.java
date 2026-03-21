@@ -27,7 +27,8 @@ public class ListService {
                         game.gameID(),
                         game.whiteUsername(),
                         game.blackUsername(),
-                        game.gameName()
+                        game.gameName(),
+                        game.game()
                 );
                 results.add(result);
             });

@@ -1,7 +1,5 @@
 package ui;
 import java.util.Scanner;
-import static java.awt.Color.GREEN;
-import static java.awt.Color.RED;
 
 public class Repl {
 
@@ -12,12 +10,13 @@ public class Repl {
     }
 
     public void run(){
+        System.out.println("Welcome to my CS 240 Chess Application. Try typing help to start playing");
         Scanner scanner = new Scanner(System.in);
         var result = "";
 
         while(!result.equals("quit")){
+            printPrompt();
             try{
-
                 String line = scanner.nextLine();
                 result = client.eval(line);
                 System.out.print(result);
@@ -30,6 +29,6 @@ public class Repl {
     }
 
     public void printPrompt(){
-        System.out.println("\n" + ">>>" + GREEN);
+        System.out.println("\n" + ">>>");
     }
 }

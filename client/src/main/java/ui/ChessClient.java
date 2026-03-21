@@ -1,6 +1,7 @@
 package ui;
 import chess.ChessGame;
 import facade.ServerFacade;
+import model.GameData;
 import model.requests.CreateGameRequest;
 import model.requests.JoinGameRequest;
 import model.requests.LoginRequest;
@@ -70,6 +71,28 @@ public class ChessClient {
         }
     }
 
+    public String observeGame(String... params) throws ResponseException{
+        if(params.length != 1){
+            throw new ResponseException("Expected: <ID>");
+        }
+        assertSignedIn();
+
+        try{
+            int id = Integer.parseInt(params[0])-1;
+            if(gamelist == null || id < 0 || id >= gamelist.size()){
+                throw new ResponseException("Error: game id is not valid, use list to see valid game ids");
+            }
+
+            ListResult gameResult = gamelist.get(id);
+            JoinGameRequest request = new JoinGameRequest(null, gameResult.gameID());
+
+            draw(System.out, gameResult.game(), true);
+            return "Currently watching: " + gameResult.gameName();
+        }catch(Exception e){
+            throw new ResponseException("Error: failed to observe game " + e.getMessage());
+        }
+    }
+
     public String logout(String... params) throws ResponseException {
         try{
             server.logout(authToken);
@@ -114,27 +137,35 @@ public class ChessClient {
     }
 
     public String joinGame(String... params) throws ResponseException{
-        if(params.length!=2){
+        if(params.length < 1){
             throw new ResponseException("Expected: <ID> [BLACK|WHITE]");
         }
         assertSignedIn();
         try{
-            int gameID = Integer.parseInt(params[0]);
+            int gameID = Integer.parseInt(params[0]) -1;
+            if(gamelist ==null || gameID <0 ||gameID >= gamelist.size()){
+                throw new ResponseException("Error: invalid game id. Use list to see valid ids");
+            }
+            ListResult gameResult = gamelist.get(gameID);
+            int realGameId = gameResult.gameID();
 
-            String color = params[1];
             ChessGame.TeamColor playerColor =null;
-            if(color.equalsIgnoreCase("WHITE")){
-                playerColor=ChessGame.TeamColor.WHITE;
-            }
-            else if(color.equalsIgnoreCase("BLACK")){
-                playerColor = ChessGame.TeamColor.BLACK;
+
+            if(params.length > 1){
+                String color = params[1];
+                if(color.equalsIgnoreCase("WHITE")){
+                    playerColor=ChessGame.TeamColor.WHITE;
+                }
+                else if(color.equalsIgnoreCase("BLACK")){
+                    playerColor = ChessGame.TeamColor.BLACK;
+                }
             }
 
-            JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
+            JoinGameRequest request = new JoinGameRequest(playerColor, realGameId);
             server.joinGame(request,authToken);
 
             boolean isWhite = (playerColor == ChessGame.TeamColor.WHITE);
-            draw(System.out, game.game(), isWhite);
+            draw(System.out, gameResult.game(), isWhite);
             return String.format("Joined game ");
         }catch(Exception e){
             throw new ResponseException("Join falied: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games");

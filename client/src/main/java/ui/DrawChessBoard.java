@@ -34,9 +34,9 @@ public class DrawChessBoard extends EscapeSequences {
 
     private static boolean isWhite;
 
-    public static void draw(PrintStream out, ChessBoard gameBoard, boolean isWhiteSide){
+    public static void draw(PrintStream out, ChessGame game, boolean isWhiteSide){
         out.print(ERASE_SCREEN);
-        board = gameBoard;
+        board = game.getBoard();
         isWhite = isWhiteSide;
         drawChessBoard(out, board, true);
         out.print(RESET_TEXT_COLOR);

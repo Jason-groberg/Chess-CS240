@@ -25,38 +25,38 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public RegisterResult register(RegisterRequest register){
+    public RegisterResult register(RegisterRequest register) throws ResponseException{
         var request = buildRequest("POST", "/user", register, null);
         var response = sendRequest(request);
-        return handleResponse(response, AuthData.class);
+        return handleResponse(response, RegisterResult.class);
     }
 
-    public LoginResult login(LoginRequest loginRequest){
+    public LoginResult login(LoginRequest loginRequest) throws ResponseException{
         var request = buildRequest("POST","/session", loginRequest, null);
         var response = sendRequest(request);
         return handleResponse(response, LoginResult.class);
     }
 
-    public void logout(String authToken){
+    public void logout(String authToken) throws ResponseException{
         var request = buildRequest("DELETE","/session",null, authToken);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    public CreateGameResult createGame(CreateGameRequest createRequest,String authToken){
+    public CreateGameResult createGame(CreateGameRequest createRequest,String authToken) throws ResponseException{
         var request = buildRequest("POST","/session",createRequest, authToken);
         var response = sendRequest(request);
-        return handleResponse(response, CreateGameResult);
+        return handleResponse(response, CreateGameResult.class);
     }
 
-    public void joinGame(JoinGameRequest joinRequest, String authToken){
+    public void joinGame(JoinGameRequest joinRequest, String authToken) throws ResponseException{
         var request = buildRequest("PUT", "/game", joinRequest, authToken);
         var response = sendRequest(request);
         handleResponse(response, null);
 
     }
 
-    public ListofListResult listGames(String authToken) {
+    public ListofListResult listGames(String authToken) throws ResponseException {
         var request = buildRequest("GET","/game",null, authToken);
         var response = sendRequest(request);
         return handleResponse(response, ListofListResult.class);
