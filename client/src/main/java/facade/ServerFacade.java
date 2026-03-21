@@ -4,8 +4,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import com.google.gson.Gson;
-import model.AuthData;
-import model.UserData;
 import model.requests.CreateGameRequest;
 import model.requests.JoinGameRequest;
 import model.requests.LoginRequest;
@@ -44,7 +42,7 @@ public class ServerFacade {
     }
 
     public CreateGameResult createGame(CreateGameRequest createRequest,String authToken) throws ResponseException{
-        var request = buildRequest("POST","/session",createRequest, authToken);
+        var request = buildRequest("POST","/game",createRequest, authToken);
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);
     }
@@ -89,9 +87,9 @@ public class ServerFacade {
         if(!isSuccessful(status)){
             var body = response.body();
             if(body!=null){
-                throw ResponseException.fromJson(body);
+                throw new ResponseException("Error: ");
             }
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status));
+            throw new ResponseException("Error: ");
         }
         if(responseClass != null){
             return new Gson().fromJson(response.body(), responseClass);

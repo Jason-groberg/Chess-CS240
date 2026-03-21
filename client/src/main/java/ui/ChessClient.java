@@ -1,7 +1,6 @@
 package ui;
 import chess.ChessGame;
 import facade.ServerFacade;
-import model.GameData;
 import model.requests.CreateGameRequest;
 import model.requests.JoinGameRequest;
 import model.requests.LoginRequest;
@@ -60,10 +59,10 @@ public class ChessClient {
         try {
             return switch(cmd){
                 case "logout" -> logout(params);
-                case "create game" -> createGame(params);
-                case "list games" -> listGames();
-                case "play game" -> joinGame(params);
-                case "observe game" -> observeGame(params);
+                case "create" -> createGame(params);
+                case "list" -> listGames();
+                case "join" -> joinGame(params);
+                case "observe" -> observeGame(params);
                 default -> help();
             };
         }catch(Exception e){
@@ -85,7 +84,7 @@ public class ChessClient {
 
             ListResult gameResult = gamelist.get(id);
             JoinGameRequest request = new JoinGameRequest(null, gameResult.gameID());
-
+            server.joinGame(request, authToken);
             draw(System.out, gameResult.game(), true);
             return "Currently watching: " + gameResult.gameName();
         }catch(Exception e){

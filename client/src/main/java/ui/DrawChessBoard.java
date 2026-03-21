@@ -97,15 +97,12 @@ public class DrawChessBoard extends EscapeSequences {
                     out.print(EMPTY);
                     out.print("  ");
                 }
-
             }
 
             drawChessRankNumber(out, rank, squareRow);
             out.print(RESET_TEXT_COLOR);
             out.println();
-
         }
-
     }
 
     private static void drawChessRankNumber(PrintStream out, int rank, int squareRow){

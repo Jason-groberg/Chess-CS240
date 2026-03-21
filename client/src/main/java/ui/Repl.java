@@ -29,6 +29,6 @@ public class Repl {
     }
 
     public void printPrompt(){
-        System.out.println("\n" + ">>>");
+        System.out.print("\n" + ">>> ");
     }
 }
