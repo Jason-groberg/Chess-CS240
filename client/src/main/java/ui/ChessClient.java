@@ -1,13 +1,16 @@
 package ui;
+import chess.ChessGame;
 import facade.ServerFacade;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.requests.LoginRequest;
 import model.requests.RegisterRequest;
-import model.results.RegisterResult;
-
+import model.results.*;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
+import static ui.DrawChessBoard.draw;
 
 public class ChessClient {
     public enum State{
@@ -18,7 +21,7 @@ public class ChessClient {
     private final String serverUrl;
     private final ServerFacade server;
     private String authToken = null;
-    private Collection<GameData> gamelist =null;
+    private List<ListResult> gamelist = null;
 
     public ChessClient(String url){
         server = new ServerFacade(url);
@@ -79,6 +82,81 @@ public class ChessClient {
         }
     }
 
+    public String listGames() throws ResponseException{
+        assertSignedIn();
+
+        try{
+            ListofListResult result = server.listGames(authToken);
+            gamelist = new ArrayList<>(result.games());
+            StringBuilder sb = new StringBuilder();
+            sb.append("------ Current Active Games ------\n");
+            if(gamelist.isEmpty()){
+                sb.append("No active games, use the create command to start\n");
+            }else{
+                for(int i=0; i < gamelist.size();i++){
+                    var game = gamelist.get(i);
+                    sb.append("Game ID: " + (i+1) + ", Game Name: " + (game.gameName()));
+                    String whiteUsername = "<none>";
+                    String blackUsername ="<none>";
+                    if(game.whiteUsername() !=null){
+                        whiteUsername = game.whiteUsername();
+                    }
+                    if(game.blackUsername()!=null){
+                        blackUsername = game.blackUsername();
+                    }
+                    sb.append("WhitePlayer: " + whiteUsername + "|BlackPlayer: " + blackUsername + "\n");
+                }
+            }
+            return sb.toString();
+        }catch (Exception e){
+            throw new ResponseException("Error: failed to list games" + e.getMessage());
+        }
+    }
+
+    public String joinGame(String... params) throws ResponseException{
+        if(params.length!=2){
+            throw new ResponseException("Expected: <ID> [BLACK|WHITE]");
+        }
+        assertSignedIn();
+        try{
+            int gameID = Integer.parseInt(params[0]);
+
+            String color = params[1];
+            ChessGame.TeamColor playerColor =null;
+            if(color.equalsIgnoreCase("WHITE")){
+                playerColor=ChessGame.TeamColor.WHITE;
+            }
+            else if(color.equalsIgnoreCase("BLACK")){
+                playerColor = ChessGame.TeamColor.BLACK;
+            }
+
+            JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
+            server.joinGame(request,authToken);
+
+            boolean isWhite = (playerColor == ChessGame.TeamColor.WHITE);
+            draw(System.out, game.game(), isWhite);
+            return String.format("Joined game ");
+        }catch(Exception e){
+            throw new ResponseException("Join falied: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games");
+        }
+
+    }
+
+    public String createGame(String... params) throws ResponseException{
+        if(params.length!=1){
+            throw new ResponseException("Expected: <NAME>");
+        }
+        assertSignedIn();
+
+        try{
+            CreateGameRequest request = new CreateGameRequest(params[0]);
+            CreateGameResult result = server.createGame(request, authToken);
+            return String.format("Create new game: %s", request.gameName());
+        }catch(Exception e){
+            throw new ResponseException("Error: failed to create game" + e.getMessage());
+        }
+    }
+
     public String register(String... params)throws Exception{
         if(params.length !=3){
             throw new ResponseException("Error: Expected <USERNAME> <PASSWORD> <EMAIL>");
@@ -99,13 +177,14 @@ public class ChessClient {
         if(params.length != 2){
             throw new ResponseException("Error: Expected <USERNAME> <PASSWORD>");
         }
-        String username = params[0];
-        String password = params[1];
+
+
         try{
-            AuthData auth = server.login(username, password);
-            authToken = auth.authToken();
+            LoginRequest request = new LoginRequest(params[0],params[1]);
+            LoginResult result = server.login(request);
+            authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format("Welcome %s\nStart playing with:\n%s", username, help());
+            return String.format("Welcome %s\nStart playing with:\n%s", result.username(), help());
         } catch(Exception e){
             throw new ResponseException("Login failed");
         }

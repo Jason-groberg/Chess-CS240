@@ -6,8 +6,12 @@ import java.net.http.HttpResponse;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
 import model.requests.LoginRequest;
 import model.requests.RegisterRequest;
+import model.results.CreateGameResult;
+import model.results.ListofListResult;
 import model.results.LoginResult;
 import model.results.RegisterResult;
 import ui.ResponseException;
@@ -39,7 +43,24 @@ public class ServerFacade {
         handleResponse(response, null);
     }
 
+    public CreateGameResult createGame(CreateGameRequest createRequest,String authToken){
+        var request = buildRequest("POST","/session",createRequest, authToken);
+        var response = sendRequest(request);
+        return handleResponse(response, CreateGameResult);
+    }
 
+    public void joinGame(JoinGameRequest joinRequest, String authToken){
+        var request = buildRequest("PUT", "/game", joinRequest, authToken);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+
+    }
+
+    public ListofListResult listGames(String authToken) {
+        var request = buildRequest("GET","/game",null, authToken);
+        var response = sendRequest(request);
+        return handleResponse(response, ListofListResult.class);
+    }
 
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken){

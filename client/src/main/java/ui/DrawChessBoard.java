@@ -30,15 +30,18 @@ public class DrawChessBoard extends EscapeSequences {
     private static final String BLACK_ROOK = EscapeSequences.BLACK_ROOK;
     private static final String BLACK_PAWN = EscapeSequences.BLACK_PAWN;
     private static final String[] blackFiles = new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
-    public static ChessBoard normalBoard = new ChessBoard();
+    public static ChessBoard board;
 
-    public static void main(String[] args){
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private static boolean isWhite;
+
+    public static void draw(PrintStream out, ChessBoard gameBoard, boolean isWhiteSide){
         out.print(ERASE_SCREEN);
-
-        normalBoard.resetBoard();
-        drawChessBoard(out, normalBoard, true);
-
+        board = gameBoard;
+        isWhite = isWhiteSide;
+        drawChessBoard(out, board, true);
+        out.print(RESET_TEXT_COLOR);
+        out.print(RESET_BG_COLOR);
+        out.println();
     }
 
     private static void drawHeaders(PrintStream out, boolean isWhite){
