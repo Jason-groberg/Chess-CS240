@@ -17,8 +17,9 @@ public class Repl {
 
         while(!result.equals("quit")){
             try{
+
                 String line = scanner.nextLine();
-                result = client.eval(result);
+                result = client.eval(line);
                 System.out.print(result);
             }catch(Throwable e){
                 var msg = e.toString();

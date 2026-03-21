@@ -8,5 +8,6 @@ public class ClientMain {
         System.out.println("♕ 240 Chess Client: " + piece);
     }
 
-    new Repl(serverUrl).run();
+    Repl repl = new Repl().run();
+
 }
