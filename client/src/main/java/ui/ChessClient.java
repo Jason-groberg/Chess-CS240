@@ -31,7 +31,7 @@ public class ChessClient {
     public String eval(String input){
         try{
             String[] tokens = input.split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (state) {
                 case SIGNEDOUT -> preLoginEval(cmd, params);
@@ -126,7 +126,7 @@ public class ChessClient {
                     if(game.blackUsername()!=null){
                         blackUsername = game.blackUsername();
                     }
-                    sb.append("WhitePlayer: " + whiteUsername + "|BlackPlayer: " + blackUsername + "\n");
+                    sb.append("\n     White: " + whiteUsername + ", BlackPlayer: " + blackUsername + "\n");
                 }
             }
             return sb.toString();

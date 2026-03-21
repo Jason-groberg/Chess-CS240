@@ -38,7 +38,7 @@ public class DrawChessBoard extends EscapeSequences {
         out.print(ERASE_SCREEN);
         board = game.getBoard();
         isWhite = isWhiteSide;
-        drawChessBoard(out, board, true);
+        drawChessBoard(out, board, isWhite);
         out.print(RESET_TEXT_COLOR);
         out.print(RESET_BG_COLOR);
         out.println();
