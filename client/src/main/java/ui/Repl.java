@@ -1,6 +1,7 @@
 package ui;
 import java.util.Scanner;
 
+
 public class Repl {
 
     public final ChessClient client;
@@ -10,7 +11,7 @@ public class Repl {
     }
 
     public void run(){
-        System.out.println("Welcome to my CS 240 Chess Application. Try typing help to start playing");
+        System.out.println("Welcome to my CS 240 Chess Application.\nTry typing help to start.");
         Scanner scanner = new Scanner(System.in);
         var result = "";
 

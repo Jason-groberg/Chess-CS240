@@ -87,9 +87,9 @@ public class ServerFacade {
         if(!isSuccessful(status)){
             var body = response.body();
             if(body!=null){
-                throw new ResponseException("Error: ");
+                throw ResponseException.fromJson(body, status);
             }
-            throw new ResponseException("Error: ");
+            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "Status: " + status);
         }
         if(responseClass != null){
             return new Gson().fromJson(response.body(), responseClass);
@@ -101,7 +101,7 @@ public class ServerFacade {
         try{
             return client.send(request, HttpResponse.BodyHandlers.ofString());
         }catch(Exception e){
-            throw new ResponseException(e.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
         }
     }
 

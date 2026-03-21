@@ -30,7 +30,7 @@ public class ChessClient {
 
     public String eval(String input){
         try{
-            String[] tokens = input.toLowerCase().split(" ");
+            String[] tokens = input.split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (state) {
@@ -70,16 +70,16 @@ public class ChessClient {
         }
     }
 
-    public String observeGame(String... params) throws ResponseException{
+    public String observeGame(String... params) throws Exception{
         if(params.length != 1){
-            throw new ResponseException("Expected: <ID>");
+            throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <ID>");
         }
         assertSignedIn();
 
         try{
             int id = Integer.parseInt(params[0])-1;
             if(gamelist == null || id < 0 || id >= gamelist.size()){
-                throw new ResponseException("Error: game id is not valid, use list to see valid game ids");
+                throw new ResponseException(ResponseException.Code.BadRequest,"Error: game id is not valid, use list to see valid game ids");
             }
 
             ListResult gameResult = gamelist.get(id);
@@ -88,7 +88,7 @@ public class ChessClient {
             draw(System.out, gameResult.game(), true);
             return "Currently watching: " + gameResult.gameName();
         }catch(Exception e){
-            throw new ResponseException("Error: failed to observe game " + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to observe game " + e.getMessage());
         }
     }
 
@@ -100,7 +100,7 @@ public class ChessClient {
             return "Successfully Logged out";
 
         }catch(Exception e){
-            throw new ResponseException("Error: Logout failed: ");
+            throw new ResponseException(ResponseException.Code.BadRequest,"Error: Logout failed: ");
         }
     }
 
@@ -131,19 +131,19 @@ public class ChessClient {
             }
             return sb.toString();
         }catch (Exception e){
-            throw new ResponseException("Error: failed to list games" + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to list games" + e.getMessage());
         }
     }
 
     public String joinGame(String... params) throws ResponseException{
         if(params.length < 1){
-            throw new ResponseException("Expected: <ID> [BLACK|WHITE]");
+            throw new ResponseException(ResponseException.Code.BadRequest,"Expected: <ID> [BLACK|WHITE]");
         }
         assertSignedIn();
         try{
             int gameID = Integer.parseInt(params[0]) -1;
             if(gamelist ==null || gameID <0 ||gameID >= gamelist.size()){
-                throw new ResponseException("Error: invalid game id. Use list to see valid ids");
+                throw new ResponseException(ResponseException.Code.BadRequest,"Error: invalid game id. Use list to see valid ids");
             }
             ListResult gameResult = gamelist.get(gameID);
             int realGameId = gameResult.gameID();
@@ -167,14 +167,14 @@ public class ChessClient {
             draw(System.out, gameResult.game(), isWhite);
             return String.format("Joined game ");
         }catch(Exception e){
-            throw new ResponseException("Join falied: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games");
+            throw new ResponseException(ResponseException.Code.BadRequest,"Join falied: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games");
         }
 
     }
 
     public String createGame(String... params) throws ResponseException{
         if(params.length!=1){
-            throw new ResponseException("Expected: <NAME>");
+            throw new ResponseException(ResponseException.Code.BadRequest,"Expected: <NAME>");
         }
         assertSignedIn();
 
@@ -183,13 +183,13 @@ public class ChessClient {
             CreateGameResult result = server.createGame(request, authToken);
             return String.format("Create new game: %s", request.gameName());
         }catch(Exception e){
-            throw new ResponseException("Error: failed to create game" + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to create game" + e.getMessage());
         }
     }
 
     public String register(String... params)throws Exception{
         if(params.length !=3){
-            throw new ResponseException("Error: Expected <USERNAME> <PASSWORD> <EMAIL>");
+            throw new ResponseException(ResponseException.Code.BadRequest,"Error: Expected <USERNAME> <PASSWORD> <EMAIL>");
         }
         RegisterRequest request = new RegisterRequest(params[0],params[1],params[2]);
 
@@ -199,13 +199,13 @@ public class ChessClient {
             state = State.SIGNEDIN;
             return String.format("Welcome %s\nStart playing with:\n%s", result.username(), help());
         }catch(Exception e){
-            throw new ResponseException("Error: Register failed " + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,"Error: Register failed " + e.getMessage());
         }
     }
 
     public String login(String... params) throws ResponseException{
         if(params.length != 2){
-            throw new ResponseException("Error: Expected <USERNAME> <PASSWORD>");
+            throw new ResponseException(ResponseException.Code.BadRequest,"Error: Expected <USERNAME> <PASSWORD>");
         }
 
 
@@ -216,13 +216,14 @@ public class ChessClient {
             state = State.SIGNEDIN;
             return String.format("Welcome %s\nStart playing with:\n%s", result.username(), help());
         } catch(Exception e){
-            throw new ResponseException("Login failed");
+            throw new ResponseException(ResponseException.Code.BadRequest, "Login failed" + e.getMessage());
         }
     }
 
     public String help() {
         if(state == State.SIGNEDOUT){
             return """
+                    > ---- COMMANDS -----
                     > register <USERNAME> <PASSWORD> <EMAIL> - to register a new user
                     > login <USERNAME> <PASSWORD> - to start a game
                     > quit - exit application
@@ -232,6 +233,7 @@ public class ChessClient {
         // user is singed in
         else{
             return """
+                    > ---- COMMANDS -----
                     > logout - to log out of application
                     > create <NAME> - to create a new game to play
                     > join <ID> [WHITE|BLACK] - to join game at given ID 
@@ -245,7 +247,7 @@ public class ChessClient {
 
     private void assertSignedIn() throws ResponseException {
         if (state == State.SIGNEDOUT){
-            throw new ResponseException("Error: Must sign in first");
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Must sign in first");
         }
     }
 }
