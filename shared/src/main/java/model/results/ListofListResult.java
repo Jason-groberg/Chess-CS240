@@ -1,4 +1,4 @@
-package results;
+package model.results;
 import java.util.Collection;
 
 

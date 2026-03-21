@@ -1,7 +1,7 @@
 package server;
 import parser.JsonDecoder;
-import requests.RegisterRequest;
-import results.RegisterResult;
+import model.requests.RegisterRequest;
+import model.results.RegisterResult;
 import com.google.gson.Gson;
 import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;

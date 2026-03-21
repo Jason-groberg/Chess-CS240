@@ -1,5 +1,8 @@
 package parser;
-import requests.*;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.requests.LoginRequest;
+import model.requests.RegisterRequest;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import io.javalin.http.Context;

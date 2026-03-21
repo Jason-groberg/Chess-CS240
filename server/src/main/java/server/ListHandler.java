@@ -1,6 +1,6 @@
 package server;
 import parser.JsonDecoder;
-import results.ListofListResult;
+import model.results.ListofListResult;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;

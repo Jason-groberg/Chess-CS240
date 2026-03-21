@@ -3,6 +3,8 @@ import facade.ServerFacade;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import model.requests.RegisterRequest;
+import model.results.RegisterResult;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,21 +67,31 @@ public class ChessClient {
         }
     }
 
-    public String register(String[] params)throws Exception{
+    public String logout(String... params) throws ResponseException {
+        try{
+            server.logout(authToken);
+            authToken = null;
+            state = State.SIGNEDOUT;
+            return "Successfully Logged out";
+
+        }catch(Exception e){
+            throw new ResponseException("Error: Logout failed: ");
+        }
+    }
+
+    public String register(String... params)throws Exception{
         if(params.length !=3){
             throw new ResponseException("Error: Expected <USERNAME> <PASSWORD> <EMAIL>");
         }
-        String username = params[0];
-        String password = params[1];
-        String email = params[2];
+        RegisterRequest request = new RegisterRequest(params[0],params[1],params[2]);
 
         try{
-            AuthData auth = server.register(username, password,email);
-            authToken = auth.authToken();
+            RegisterResult result = server.register(request);
+            authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format("Welcome %s\nStart playing with:\n%s", username, help());
+            return String.format("Welcome %s\nStart playing with:\n%s", result.username(), help());
         }catch(Exception e){
-            throw new ResponseException("Error: Register failed" + e.getMessage());
+            throw new ResponseException("Error: Register failed " + e.getMessage());
         }
     }
 

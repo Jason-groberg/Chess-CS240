@@ -1,5 +1,5 @@
 package service;
-import requests.JoinGameRequest;
+import model.requests.JoinGameRequest;
 import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;

@@ -1,6 +1,6 @@
 package service;
-import requests.RegisterRequest;
-import results.RegisterResult;
+import model.requests.RegisterRequest;
+import model.results.RegisterResult;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;

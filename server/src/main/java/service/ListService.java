@@ -1,6 +1,6 @@
 package service;
-import results.ListResult;
-import results.ListofListResult;
+import model.results.ListResult;
+import model.results.ListofListResult;
 import dataaccess.*;
 import model.GameData;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package service;
-import requests.CreateGameRequest;
-import results.CreateGameResult;
+import model.requests.CreateGameRequest;
+import model.results.CreateGameResult;
 import chess.ChessGame;
 import dataaccess.*;
 import model.GameData;
