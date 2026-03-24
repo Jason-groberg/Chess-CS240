@@ -4,7 +4,6 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 
 public class DrawChessBoard extends EscapeSequences {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
@@ -136,26 +135,6 @@ public class DrawChessBoard extends EscapeSequences {
         out.print(SET_TEXT_COLOR_BLACK);
         out.print(SET_TEXT_ITALIC);
         out.print(SET_TEXT_BOLD);
-    }
-
-    private static void setRed(PrintStream out){
-        out.print(SET_BG_COLOR_RED);
-        out.print(SET_TEXT_COLOR_RED);
-    }
-
-    private static void setWhite(PrintStream out) {
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_WHITE);
-    }
-
-    private static void setBlack(PrintStream out) {
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
-    }
-
-    private static void setGreen(PrintStream out) {
-        out.print(SET_BG_COLOR_DARK_GREEN);
-        out.print(SET_TEXT_COLOR_DARK_GREY);
     }
 
     private static String findPiece(ChessPiece piece){

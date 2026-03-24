@@ -11,14 +11,13 @@ public class ServerFacadeTests {
 
     private static Server server;
     public static ServerFacade facade;
-    private static RegisterRequest newUser;
     private static RegisterRequest existingUser;
     private String existingAuth;
 
 
 
     @BeforeAll
-    public static void init() throws Exception{
+    public static void init(){
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
@@ -52,7 +51,7 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Register Bad Request")
-    public void registerBadRequest()throws Exception{
+    public void registerBadRequest(){
         RegisterRequest aUser = new RegisterRequest("jason","jason","@gmail");
         assertThrows(ResponseException.class, () -> facade.register(aUser),
                 "Should throw Already Taken Exception");
@@ -60,7 +59,7 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Login Bad Request")
-    public void loginBadRequest() throws Exception{
+    public void loginBadRequest(){
         LoginRequest aUser = new LoginRequest("jason", "passwordd");
         assertThrows(ResponseException.class, () -> facade.login(aUser),
                 "Password is incorrect, unauthorized Exception");
@@ -68,7 +67,7 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Login Success")
-    public void loginSuccess() throws Exception{
+    public void loginSuccess(){
         LoginRequest aUser = new LoginRequest("jason", "password");
         assertDoesNotThrow(() -> facade.login(aUser));
 
@@ -76,13 +75,13 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Logout Success")
-    public void logoutSuccess()throws Exception{
+    public void logoutSuccess(){
         assertDoesNotThrow(() -> facade.logout(existingAuth));
     }
 
     @Test
     @DisplayName("logout unauthorized")
-    public void logoutUnauthorized()throws  Exception {
+    public void logoutUnauthorized(){
         assertThrows(ResponseException.class, () -> facade.logout("123457681234"));
     }
 
@@ -96,7 +95,7 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("create game failure")
-    public void createGameFailure() throws Exception{
+    public void createGameFailure(){
         CreateGameRequest newGame = new CreateGameRequest("coolGame1");
         assertThrows(ResponseException.class, () -> facade.createGame(newGame,"123"),
                 "should throw response error, unauthorized");
