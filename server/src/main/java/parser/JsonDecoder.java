@@ -25,9 +25,9 @@ public class JsonDecoder {
     }
 
     public static ObserveRequest getGameID(Context ctx){
-        record observeBody(int gameID){
+        record ObserveBody(int gameID){
         }
-        observeBody body = SERIALIZER.fromJson(ctx.body(), observeBody.class);
+        ObserveBody body = SERIALIZER.fromJson(ctx.body(), ObserveBody.class);
         ObserveRequest request = new ObserveRequest(body.gameID());
         return request;
     }

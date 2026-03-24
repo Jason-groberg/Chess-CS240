@@ -19,7 +19,7 @@ public class DrawChessBoard extends EscapeSequences {
     private static final String WHITE_KNIGHT = EscapeSequences.WHITE_KNIGHT;
     private static final String WHITE_ROOK = EscapeSequences.WHITE_ROOK;
     private static final String WHITE_PAWN = EscapeSequences.WHITE_PAWN;
-    private static final String[] whiteFiles = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
+    private static final String[] WHITE_FILES = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
 
     //Black Pieces
     private static final String BLACK_KING = EscapeSequences.BLACK_KING;
@@ -28,7 +28,7 @@ public class DrawChessBoard extends EscapeSequences {
     private static final String BLACK_KNIGHT = EscapeSequences.BLACK_KNIGHT;
     private static final String BLACK_ROOK = EscapeSequences.BLACK_ROOK;
     private static final String BLACK_PAWN = EscapeSequences.BLACK_PAWN;
-    private static final String[] blackFiles = new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
+    private static final String[] BLACK_FILES = new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
     public static ChessBoard board;
 
     private static boolean isWhite;
@@ -46,8 +46,8 @@ public class DrawChessBoard extends EscapeSequences {
     private static void drawHeaders(PrintStream out, boolean isWhite){
         setHeader(out);
         String[] files;
-        if(isWhite){files = whiteFiles;}
-        else{files = blackFiles;}
+        if(isWhite){files = WHITE_FILES;}
+        else{files = BLACK_FILES;}
         out.print(EMPTY + " " + EMPTY);
         for (String file : files){
             out.print(EMPTY +  file + "   ");

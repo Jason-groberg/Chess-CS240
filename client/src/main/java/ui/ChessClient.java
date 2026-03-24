@@ -85,18 +85,18 @@ public class ChessClient {
         }
     }
 
-    public String observeGame(String... params) throws Exception{
-        if(params.length != 1){
+    public String observeGame(String... params) throws Exception {
+        if (params.length != 1) {
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
                     "Error: command 'observe' got unexpected fields,\n" +
                     "Expected: <ID>" + RESET_TEXT_COLOR);
         }
         assertSignedIn();
 
-        try{
-            int id = Integer.parseInt(params[0])-1;
-            if(gamelist == null || id < 0 || id >= gamelist.size()){
-                throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+        try {
+            int id = Integer.parseInt(params[0]) - 1;
+            if (gamelist == null || id < 0 || id >= gamelist.size()) {
+                throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
                         "Observe game failed\n" +
                         "Error: given ID is not valid.\n" + RESET_TEXT_COLOR + SET_TEXT_COLOR_BLUE +
                         "Try using 'list' to see valid game ID's" + RESET_TEXT_COLOR);
@@ -107,14 +107,12 @@ public class ChessClient {
             GameData game = server.observeGame(request, authToken);
             draw(System.out, game.game(), true);
             return "Currently watching: " + gameResult.gameName();
-        }catch(NumberFormatException e ){
+        } catch (NumberFormatException e) {
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
                     "Error: field <ID> got invalid ID.\n" + RESET_TEXT_COLOR +
                     SET_TEXT_COLOR_BLUE + "Use command 'list' to see valid ids" + RESET_TEXT_COLOR);
-        }
-
-        catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
                     "Observe failed.\n" +
                     "Error: failed to observe game " + e.getMessage() + RESET_TEXT_COLOR);
         }
@@ -181,7 +179,7 @@ public class ChessClient {
             int gameID = Integer.parseInt(params[0]) -1;
             if(gamelist ==null || gameID <0 ||gameID >= gamelist.size()){
                 throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
-                        "Error: field <ID> got invalid ID.\n" + RESET_TEXT_COLOR +
+                        " field <ID> got invalid ID.\n" + RESET_TEXT_COLOR +
                         SET_TEXT_COLOR_BLUE + "Use command 'list' to see valid ids" + RESET_TEXT_COLOR);
             }
             ListResult gameResult = gamelist.get(gameID);
@@ -268,10 +266,11 @@ public class ChessClient {
             LoginResult result = server.login(request);
             authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format(WHITE_PAWN +"Welcome %s" + WHITE_PAWN + "\nStart playing with:\n%s", result.username(), help());
+            return String.format(WHITE_PAWN +"Welcome %s" + WHITE_PAWN +
+                    "\nStart playing with:\n%s", result.username(), help());
         } catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
-                    "Login failed\n" + e.getMessage() + RESET_TEXT_COLOR);
+            throw new ResponseException(ResponseException.Code.BadRequest,
+                    SET_TEXT_COLOR_RED + "Login failed\n" + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
@@ -279,7 +278,8 @@ public class ChessClient {
         if(state == State.SIGNEDOUT){
             return
                 WHITE_PAWN + "---- COMMANDS -----" + WHITE_PAWN + "\n" +
-                SET_TEXT_COLOR_BLUE + "> register <USERNAME> <PASSWORD> <EMAIL> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to register a new user.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> register <USERNAME> <PASSWORD> <EMAIL> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC
+                        + "-to register a new user.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> login <USERNAME> <PASSWORD> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to start a game.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
