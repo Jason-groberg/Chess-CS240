@@ -280,7 +280,8 @@ public class ChessClient {
                 WHITE_PAWN + "---- COMMANDS -----" + WHITE_PAWN + "\n" +
                 SET_TEXT_COLOR_BLUE + "> register <USERNAME> <PASSWORD> <EMAIL> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC
                         + "-to register a new user.\n" + RESET_TEXT_ITALIC +
-                SET_TEXT_COLOR_BLUE + "> login <USERNAME> <PASSWORD> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to start a game.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> login <USERNAME> <PASSWORD> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC
+                        + "-to start a game.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
         }
@@ -289,7 +290,8 @@ public class ChessClient {
             return
                 WHITE_PAWN + "---- COMMANDS -----" + WHITE_PAWN + "\n" +
                 SET_TEXT_COLOR_BLUE + "> create <NAME> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to create a new game.\n" + RESET_TEXT_ITALIC +
-                SET_TEXT_COLOR_BLUE + "> join <ID> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to join a game, use 'list' to see active games.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> join <ID> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC +
+                        "-to join a game, use 'list' to see active games.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> observe <ID> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to observe an active game.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> list " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to see all active games and ID's.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> logout " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to logout of application.\n" + RESET_TEXT_ITALIC +
