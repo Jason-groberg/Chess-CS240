@@ -165,7 +165,7 @@ public class ChessClient {
     }
 
     public String joinGame(String... params) throws ResponseException{
-        if(params.length < 1){
+        if(params.length != 2){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
                     "Error: command 'join' got unexpected fields\n" +
                     "Expected: <ID> [BLACK|WHITE]" + RESET_TEXT_COLOR);
@@ -256,7 +256,7 @@ public class ChessClient {
             LoginResult result = server.login(request);
             authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format(WHITE_PAWN +"Welcome %s\nStart playing with:\n%s!" + WHITE_PAWN, result.username(), help());
+            return String.format(WHITE_PAWN +"Welcome %s" + WHITE_PAWN + "\nStart playing with:\n%s", result.username(), help());
         } catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
                     "Login failed\n" + e.getMessage() + RESET_TEXT_COLOR);

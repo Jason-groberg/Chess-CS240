@@ -23,6 +23,10 @@ public class RegisterService {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
+    public String encrypt(String password){
+        return null;
+    }
+
     public RegisterResult registerUser(RegisterRequest request) throws Exception {
         try{
              if(userDOA.containsUser(request.username())){
