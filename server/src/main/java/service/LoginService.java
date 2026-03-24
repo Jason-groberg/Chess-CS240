@@ -26,7 +26,7 @@ public class LoginService {
         try {
             UserData userData = userDoa.getUser(request.username());
             if(userData == null) {
-                throw new UnauthorizedException("Error : Unauthorized");
+                throw new UnauthorizedException("Error: Unauthorized");
             }
             if (!verifyPassword(userData, request.password())){
                 throw new UnauthorizedException("Error: unauthorized, password incorrect");

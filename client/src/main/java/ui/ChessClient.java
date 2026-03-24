@@ -10,12 +10,16 @@ import java.util.List;
 import static ui.DrawChessBoard.draw;
 import static ui.EscapeSequences.*;
 
-
 public class ChessClient {
     public enum State{
         SIGNEDIN,
         SIGNEDOUT
     }
+
+    public State getState(){
+        return state;
+    }
+
     private State state = State.SIGNEDOUT;
     private final String serverUrl;
     private final ServerFacade server;
@@ -63,6 +67,7 @@ public class ChessClient {
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
                 case "clear" -> clearDatabases();
+                case "quit" -> "quit";
                 default -> help();
             };
         }catch(Exception e){
@@ -83,6 +88,7 @@ public class ChessClient {
     public String observeGame(String... params) throws Exception{
         if(params.length != 1){
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Error: command 'observe' got unexpected fields,\n" +
                     "Expected: <ID>" + RESET_TEXT_COLOR);
         }
         assertSignedIn();
@@ -91,7 +97,9 @@ public class ChessClient {
             int id = Integer.parseInt(params[0])-1;
             if(gamelist == null || id < 0 || id >= gamelist.size()){
                 throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
-                        "Error: game id is not valid, use list to see valid game ids" + RESET_TEXT_COLOR);
+                        "Observe game failed\n" +
+                        "Error: given ID is not valid.\n" + RESET_TEXT_COLOR + SET_TEXT_COLOR_BLUE +
+                        "Try using 'list' to see valid game ID's" + RESET_TEXT_COLOR);
             }
             ListResult gameResult = gamelist.get(id);
             int realGameId = gameResult.gameID();
@@ -101,6 +109,7 @@ public class ChessClient {
             return "Currently watching: " + gameResult.gameName();
         }catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Observe failed.\n" +
                     "Error: failed to observe game " + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
@@ -110,12 +119,12 @@ public class ChessClient {
             server.logout(authToken);
             authToken = null;
             state = State.SIGNEDOUT;
-            return "Successfully Logged out";
+            return "Successfully Logged out\n";
 
         }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
-                    "Error: Logout failed: " + RESET_TEXT_COLOR);
-
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Logout failed.\n" +
+                    "Error: " + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
@@ -150,6 +159,7 @@ public class ChessClient {
             return sb.toString();
         }catch (Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "List failed.\n" +
                     "Error: failed to list games " + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
@@ -157,6 +167,7 @@ public class ChessClient {
     public String joinGame(String... params) throws ResponseException{
         if(params.length < 1){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: command 'join' got unexpected fields\n" +
                     "Expected: <ID> [BLACK|WHITE]" + RESET_TEXT_COLOR);
         }
         assertSignedIn();
@@ -164,7 +175,8 @@ public class ChessClient {
             int gameID = Integer.parseInt(params[0]) -1;
             if(gamelist ==null || gameID <0 ||gameID >= gamelist.size()){
                 throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
-                        "Error: invalid game id. Use list to see valid ids" + RESET_TEXT_COLOR);
+                        "Error: field <ID> got invalid ID.\n" + RESET_TEXT_COLOR +
+                        SET_TEXT_COLOR_BLUE + "Use command 'list' to see valid ids" + RESET_TEXT_COLOR);
             }
             ListResult gameResult = gamelist.get(gameID);
             int realGameId = gameResult.gameID();
@@ -186,10 +198,11 @@ public class ChessClient {
 
             boolean isWhite = (playerColor == ChessGame.TeamColor.WHITE);
             draw(System.out, gameResult.game(), isWhite);
-            return "Joined Game Successfully";
+            return "Joined Game Successfully.";
         }catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
-                    "Join failed: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games" + RESET_TEXT_COLOR);
+                    "Join failed.\n"
+                    + "Error:" + e.getMessage() + RESET_TEXT_COLOR);
         }
 
     }
@@ -197,6 +210,7 @@ public class ChessClient {
     public String createGame(String... params) throws ResponseException{
         if(params.length!=1){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: command 'create' got unexpected fields.\n" +
                     "Expected: <NAME>" + RESET_TEXT_COLOR);
         }
         assertSignedIn();
@@ -207,14 +221,16 @@ public class ChessClient {
             return String.format("Created new game: %s.\nUse 'list' to see given game ID and 'join' with that ID.", request.gameName());
         }catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
-                    "Error: failed to create game" + e.getMessage() + RESET_TEXT_COLOR);
+                    "Failed to create game.\n"
+                    + "Error: " + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
     public String register(String... params)throws Exception{
         if(params.length !=3){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
-                    "Error: Expected <USERNAME> <PASSWORD> <EMAIL>" + RESET_TEXT_COLOR);
+                    "Error: command 'register' got unexpected fields\n" +
+                    "Expected: <USERNAME> <PASSWORD> <EMAIL>" + RESET_TEXT_COLOR);
         }
         RegisterRequest request = new RegisterRequest(params[0],params[1],params[2]);
 
@@ -222,52 +238,51 @@ public class ChessClient {
             RegisterResult result = server.register(request);
             authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format("Welcome %s\nStart playing with:\n%s", result.username(), help());
+            return String.format( WHITE_PAWN +"Welcome %s" + WHITE_PAWN + "\nStart playing with:\n%s", result.username(), help());
         }catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
-                    "Error: Register failed " + e.getMessage() + RESET_TEXT_COLOR);
+                    "Register failed\n" + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
     public String login(String... params) throws ResponseException{
         if(params.length != 2){
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
-                    "Error: Expected <USERNAME> <PASSWORD>" + RESET_TEXT_COLOR);
+                    "Error: command 'login' got unexcepted fields\n" +
+                    "Expected: <USERNAME> <PASSWORD>" + RESET_TEXT_COLOR);
         }
         try{
             LoginRequest request = new LoginRequest(params[0],params[1]);
             LoginResult result = server.login(request);
             authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format("Welcome %s\nStart playing with:\n%s", result.username(), help());
+            return String.format(WHITE_PAWN +"Welcome %s\nStart playing with:\n%s!" + WHITE_PAWN, result.username(), help());
         } catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
-                    "Login failed" + e.getMessage() + RESET_TEXT_COLOR);
+                    "Login failed\n" + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
     public String help() {
         if(state == State.SIGNEDOUT){
-            return """
-                    > ---- COMMANDS -----
-                    > register <USERNAME> <PASSWORD> <EMAIL> - to register a new user
-                    > login <USERNAME> <PASSWORD> - to start a game
-                    > quit - exit application
-                    > help - display all commands
-                    """;
+            return
+                WHITE_PAWN + "---- COMMANDS -----" + WHITE_PAWN + "\n" +
+                SET_TEXT_COLOR_BLUE + "> register <USERNAME> <PASSWORD> <EMAIL> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to register a new user.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> login <USERNAME> <PASSWORD> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to start a game.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
         }
         // user is singed in
         else{
-            return """
-                    > ---- COMMANDS -----
-                    > logout - to log out of application
-                    > create <NAME> - to create a new game to play
-                    > join <ID> [WHITE|BLACK] - to join game at given ID
-                    > list - to see all games
-                    > observe <ID> - to watch game @ given ID
-                    > quit - to exit game
-                    > help - to view all commands
-                    """;
+            return
+                WHITE_PAWN + "---- COMMANDS -----" + WHITE_PAWN + "\n" +
+                SET_TEXT_COLOR_BLUE + "> create <NAME> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to create a new game.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> join <ID> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to join a game, use 'list' to see active games.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> observe <ID> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to observe an active game.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> list " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to see all active games and ID's.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> logout " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to logout of application.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
         }
     }
 

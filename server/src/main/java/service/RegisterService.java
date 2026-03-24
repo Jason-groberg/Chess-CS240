@@ -26,7 +26,7 @@ public class RegisterService {
     public RegisterResult registerUser(RegisterRequest request) throws Exception {
         try{
              if(userDOA.containsUser(request.username())){
-                throw new AlreadyTakenException("Error: already taken");
+                throw new AlreadyTakenException("Error: username already taken");
              }
              UserData newUser = new UserData(request.username(), hashPassword(request.password()), request.email());
              userDOA.insertUser(newUser);
