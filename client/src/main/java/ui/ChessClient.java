@@ -107,7 +107,13 @@ public class ChessClient {
             GameData game = server.observeGame(request, authToken);
             draw(System.out, game.game(), true);
             return "Currently watching: " + gameResult.gameName();
-        }catch(Exception e){
+        }catch(NumberFormatException e ){
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Error: field <ID> got invalid ID.\n" + RESET_TEXT_COLOR +
+                    SET_TEXT_COLOR_BLUE + "Use command 'list' to see valid ids" + RESET_TEXT_COLOR);
+        }
+
+        catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
                     "Observe failed.\n" +
                     "Error: failed to observe game " + e.getMessage() + RESET_TEXT_COLOR);
@@ -199,7 +205,13 @@ public class ChessClient {
             boolean isWhite = (playerColor == ChessGame.TeamColor.WHITE);
             draw(System.out, gameResult.game(), isWhite);
             return "Joined Game Successfully.";
-        }catch(Exception e){
+
+        }catch(NumberFormatException e ){
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Error: field <ID> got invalid ID.\n" + RESET_TEXT_COLOR +
+                    SET_TEXT_COLOR_BLUE + "Use command 'list' to see valid ids" + RESET_TEXT_COLOR);
+        }
+        catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
                     "Join failed.\n"
                     + "Error:" + e.getMessage() + RESET_TEXT_COLOR);
