@@ -49,7 +49,6 @@ public class ServerFacade {
         var request = buildRequest("PUT", "/game", joinRequest, authToken);
         var response = sendRequest(request);
         handleResponse(response, null);
-
     }
 
     public ListofListResult listGames(String authToken) throws ResponseException {
@@ -64,12 +63,11 @@ public class ServerFacade {
         return handleResponse(response, GameData.class);
     }
 
-    public void clearDatabases(String authToken) throws Exception{
-        var request = buildRequest("DELETE", "/db", null, authToken);
+    public void clearDatabases() throws Exception{
+        var request = buildRequest("DELETE", "/db", null, null);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
-
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken){
         var request = HttpRequest.newBuilder().uri(URI.create(serverUrl + path))

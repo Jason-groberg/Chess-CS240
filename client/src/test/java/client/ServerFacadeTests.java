@@ -11,6 +11,7 @@ public class ServerFacadeTests {
     public static ServerFacade facade;
 
 
+
     @BeforeAll
     public static void init() {
         server = new Server();
@@ -21,7 +22,7 @@ public class ServerFacadeTests {
 
     @BeforeEach
     public void clear() throws Exception{
-        server.
+        facade.clearDatabases();
     }
 
     @AfterAll

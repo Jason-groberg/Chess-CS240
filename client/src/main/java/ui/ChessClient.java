@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import static ui.DrawChessBoard.draw;
+import static ui.EscapeSequences.*;
+
 
 public class ChessClient {
     public enum State{
@@ -70,23 +72,26 @@ public class ChessClient {
 
     public String clearDatabases() throws Exception{
         try{
-            server.clearDatabases(authToken);
+            server.clearDatabases();
             return "All Databases Cleared";
         }catch(Exception e ){
-            throw new ResponseException(ResponseException.Code.ServerError, "Error: something went wrong clearing database");
+            throw new ResponseException(ResponseException.Code.ServerError, SET_TEXT_COLOR_RED +
+                    "Error: something went wrong clearing database" + RESET_TEXT_COLOR);
         }
     }
 
     public String observeGame(String... params) throws Exception{
         if(params.length != 1){
-            throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <ID>");
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Expected: <ID>" + RESET_TEXT_COLOR);
         }
         assertSignedIn();
 
         try{
             int id = Integer.parseInt(params[0])-1;
             if(gamelist == null || id < 0 || id >= gamelist.size()){
-                throw new ResponseException(ResponseException.Code.BadRequest,"Error: game id is not valid, use list to see valid game ids");
+                throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                        "Error: game id is not valid, use list to see valid game ids" + RESET_TEXT_COLOR);
             }
             ListResult gameResult = gamelist.get(id);
             int realGameId = gameResult.gameID();
@@ -95,7 +100,8 @@ public class ChessClient {
             draw(System.out, game.game(), true);
             return "Currently watching: " + gameResult.gameName();
         }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to observe game " + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: failed to observe game " + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
@@ -107,7 +113,9 @@ public class ChessClient {
             return "Successfully Logged out";
 
         }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Error: Logout failed: ");
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: Logout failed: " + RESET_TEXT_COLOR);
+
         }
     }
 
@@ -118,13 +126,16 @@ public class ChessClient {
             ListofListResult result = server.listGames(authToken);
             gamelist = new ArrayList<>(result.games());
             StringBuilder sb = new StringBuilder();
-            sb.append("------ Current Active Games ------\n");
+            sb.append(SET_TEXT_BOLD + SET_TEXT_ITALIC +
+                    WHITE_KING + "------ Current Active Games ------" + WHITE_KING +"\n" +
+                    RESET_TEXT_ITALIC + RESET_TEXT_BOLD_FAINT);
             if(gamelist.isEmpty()){
                 sb.append("No active games, use the create command to start\n");
             }else{
                 for(int i=0; i < gamelist.size();i++){
                     var game = gamelist.get(i);
-                    sb.append("Game ID: " + (i+1) + ", Game Name: " + (game.gameName()));
+                    sb.append( WHITE_PAWN + SET_TEXT_BOLD + "Game ID: " + (i+1) + RESET_TEXT_ITALIC +
+                            SET_TEXT_ITALIC + ", Game Name: " + (game.gameName()) + ",");
                     String whiteUsername = "<none>";
                     String blackUsername ="<none>";
                     if(game.whiteUsername() !=null){
@@ -133,24 +144,27 @@ public class ChessClient {
                     if(game.blackUsername()!=null){
                         blackUsername = game.blackUsername();
                     }
-                    sb.append("\n     White: " + whiteUsername + ", Black: " + blackUsername + "\n");
+                    sb.append("\n    Players: White: " + whiteUsername + ", Black: " + blackUsername + "\n");
                 }
             }
             return sb.toString();
         }catch (Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to list games " + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: failed to list games " + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
     public String joinGame(String... params) throws ResponseException{
         if(params.length < 1){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Expected: <ID> [BLACK|WHITE]");
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Expected: <ID> [BLACK|WHITE]" + RESET_TEXT_COLOR);
         }
         assertSignedIn();
         try{
             int gameID = Integer.parseInt(params[0]) -1;
             if(gamelist ==null || gameID <0 ||gameID >= gamelist.size()){
-                throw new ResponseException(ResponseException.Code.BadRequest,"Error: invalid game id. Use list to see valid ids");
+                throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                        "Error: invalid game id. Use list to see valid ids" + RESET_TEXT_COLOR);
             }
             ListResult gameResult = gamelist.get(gameID);
             int realGameId = gameResult.gameID();
@@ -174,29 +188,33 @@ public class ChessClient {
             draw(System.out, gameResult.game(), isWhite);
             return "Joined Game Successfully";
         }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Join failed: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games");
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Join failed: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games" + RESET_TEXT_COLOR);
         }
 
     }
 
     public String createGame(String... params) throws ResponseException{
         if(params.length!=1){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Expected: <NAME>");
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Expected: <NAME>" + RESET_TEXT_COLOR);
         }
         assertSignedIn();
 
         try{
             CreateGameRequest request = new CreateGameRequest(params[0]);
             server.createGame(request, authToken);
-            return String.format("Created new game: %s", request.gameName());
+            return String.format("Created new game: %s.\nUse 'list' to see given game ID and 'join' with that ID.", request.gameName());
         }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to create game" + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: failed to create game" + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
     public String register(String... params)throws Exception{
         if(params.length !=3){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Error: Expected <USERNAME> <PASSWORD> <EMAIL>");
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: Expected <USERNAME> <PASSWORD> <EMAIL>" + RESET_TEXT_COLOR);
         }
         RegisterRequest request = new RegisterRequest(params[0],params[1],params[2]);
 
@@ -206,16 +224,16 @@ public class ChessClient {
             state = State.SIGNEDIN;
             return String.format("Welcome %s\nStart playing with:\n%s", result.username(), help());
         }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Error: Register failed " + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: Register failed " + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
     public String login(String... params) throws ResponseException{
         if(params.length != 2){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Error: Expected <USERNAME> <PASSWORD>");
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Error: Expected <USERNAME> <PASSWORD>" + RESET_TEXT_COLOR);
         }
-
-
         try{
             LoginRequest request = new LoginRequest(params[0],params[1]);
             LoginResult result = server.login(request);
@@ -223,7 +241,8 @@ public class ChessClient {
             state = State.SIGNEDIN;
             return String.format("Welcome %s\nStart playing with:\n%s", result.username(), help());
         } catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest, "Login failed" + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Login failed" + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
@@ -254,7 +273,8 @@ public class ChessClient {
 
     private void assertSignedIn() throws ResponseException {
         if (state == State.SIGNEDOUT){
-            throw new ResponseException(ResponseException.Code.Unauthorized, "Error: Must sign in first");
+            throw new ResponseException(ResponseException.Code.Unauthorized, SET_TEXT_COLOR_RED +
+                    "Error: Must sign in first" + RESET_TEXT_COLOR);
         }
     }
 }
