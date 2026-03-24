@@ -38,4 +38,18 @@ public class ListService {
             throw new Exception();
         }
     }
+
+    public GameData getGame(int id, String authToken) throws Exception{
+        try{
+            if(!authDao.isAuthorized(authToken)){
+                throw new UnauthorizedException("Error: unauthorized");
+            }
+            if(!gameDao.gameExists(id)){
+                throw new UnauthorizedException("Error: game does not exist");
+            }
+            return gameDao.getGame(id);
+        }catch(DataAccessException e){
+            throw new Exception();
+        }
+    }
 }

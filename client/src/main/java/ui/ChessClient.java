@@ -6,7 +6,7 @@ import model.requests.JoinGameRequest;
 import model.requests.LoginRequest;
 import model.requests.RegisterRequest;
 import model.results.*;
-import java.awt.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,7 +58,7 @@ public class ChessClient {
     public String postLoginEval(String cmd, String[] params){
         try {
             return switch(cmd){
-                case "logout" -> logout(params);
+                case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "join" -> joinGame(params);
@@ -83,8 +83,8 @@ public class ChessClient {
             }
 
             ListResult gameResult = gamelist.get(id);
-            JoinGameRequest request = new JoinGameRequest(null, gameResult.gameID());
-            server.joinGame(request, authToken);
+            int realGameId = gameResult.gameID();
+            server.observeGame(authToken, realGameId);
             draw(System.out, gameResult.game(), true);
             return "Currently watching: " + gameResult.gameName();
         }catch(Exception e){
@@ -92,7 +92,7 @@ public class ChessClient {
         }
     }
 
-    public String logout(String... params) throws ResponseException {
+    public String logout() throws ResponseException {
         try{
             server.logout(authToken);
             authToken = null;
@@ -126,7 +126,7 @@ public class ChessClient {
                     if(game.blackUsername()!=null){
                         blackUsername = game.blackUsername();
                     }
-                    sb.append("\n     White: " + whiteUsername + ", BlackPlayer: " + blackUsername + "\n");
+                    sb.append("\n     White: " + whiteUsername + ", Black: " + blackUsername + "\n");
                 }
             }
             return sb.toString();
@@ -165,9 +165,9 @@ public class ChessClient {
 
             boolean isWhite = (playerColor == ChessGame.TeamColor.WHITE);
             draw(System.out, gameResult.game(), isWhite);
-            return String.format("Joined game ");
+            return "Joined Game Successfully";
         }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Join falied: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games");
+            throw new ResponseException(ResponseException.Code.BadRequest,"Join failed: Expected <ID> [BLACK|WHITE]\nTry list to see joinable games");
         }
 
     }
@@ -180,8 +180,8 @@ public class ChessClient {
 
         try{
             CreateGameRequest request = new CreateGameRequest(params[0]);
-            CreateGameResult result = server.createGame(request, authToken);
-            return String.format("Create new game: %s", request.gameName());
+            server.createGame(request, authToken);
+            return String.format("Created new game: %s", request.gameName());
         }catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to create game" + e.getMessage());
         }
@@ -236,11 +236,11 @@ public class ChessClient {
                     > ---- COMMANDS -----
                     > logout - to log out of application
                     > create <NAME> - to create a new game to play
-                    > join <ID> [WHITE|BLACK] - to join game at given ID 
-                    > list - to see all games 
+                    > join <ID> [WHITE|BLACK] - to join game at given ID
+                    > list - to see all games
                     > observe <ID> - to watch game @ given ID
-                    > quit - to exit game 
-                    > help - to view all commands  
+                    > quit - to exit game
+                    > help - to view all commands
                     """;
         }
     }

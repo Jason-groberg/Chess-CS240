@@ -27,6 +27,13 @@ public class JsonDecoder {
         return SERIALIZER.fromJson(ctx.body(), CreateGameRequest.class);
     }
 
+    public static int getGameID(Context ctx){
+        record observeBody(int gameID){
+        }
+        observeBody body = SERIALIZER.fromJson(ctx.body(), observeBody.class);
+        return body.gameID;
+    }
+
     public static JoinGameRequest makeJoinRequest(Context ctx){
         record JoinBody(String playerColor, int gameID){}
         JoinBody body = SERIALIZER.fromJson(ctx.body(), JoinBody.class);

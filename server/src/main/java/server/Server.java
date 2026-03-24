@@ -24,6 +24,8 @@ public class Server {
         javalinServer.get("/game", ListHandler::serviceList);
         javalinServer.post("/game", CreateGameHandler::serviceCreateGame);
         javalinServer.put("/game", JoinGameHandler::serviceJoinGame);
+        javalinServer.get("/session",ListHandler::serviceGetGame);
+
     }
 
     public void stop() {

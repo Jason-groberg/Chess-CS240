@@ -4,6 +4,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import com.google.gson.Gson;
+import model.GameData;
 import model.requests.CreateGameRequest;
 import model.requests.JoinGameRequest;
 import model.requests.LoginRequest;
@@ -58,6 +59,12 @@ public class ServerFacade {
         var request = buildRequest("GET","/game",null, authToken);
         var response = sendRequest(request);
         return handleResponse(response, ListofListResult.class);
+    }
+
+    public void observeGame(String authToken, int Id)throws ResponseException{
+        var request = buildRequest("GET", "/session", Id, authToken);
+        var response = sendRequest(request);
+        handleResponse(response, null);
     }
 
 

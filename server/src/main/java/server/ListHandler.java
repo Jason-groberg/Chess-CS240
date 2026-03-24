@@ -1,4 +1,6 @@
 package server;
+import chess.ChessGame;
+import model.GameData;
 import parser.JsonDecoder;
 import model.results.ListofListResult;
 import com.google.gson.Gson;
@@ -22,6 +24,28 @@ public class ListHandler {
             ctx.result(new Gson().toJson(result));
         }
         catch(UnauthorizedException e){
+            ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
+        }
+        catch(Exception e){
+            ctx.status(500);
+            ctx.result(new Gson().toJson(Map.of("message", "Error" + e.getMessage())));
+        }
+    }
+    public static void serviceGetGame(Context ctx) throws Exception{
+
+        try{
+            String authToken = JsonDecoder.getAuthToken(ctx);
+            int gameID = JsonDecoder.getGameID(ctx);
+            if(authToken==null){
+                throw new DataAccessException("Error: bad request");
+            }
+            ListService service = new ListService();
+
+            GameData result = service.getGame(gameID, authToken);
+            ctx.status(200);
+            ctx.result(new Gson().toJson(result));
+        }catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         }
