@@ -1,12 +1,9 @@
 package ui;
 import chess.ChessGame;
 import facade.ServerFacade;
-import model.requests.CreateGameRequest;
-import model.requests.JoinGameRequest;
-import model.requests.LoginRequest;
-import model.requests.RegisterRequest;
+import model.GameData;
+import model.requests.*;
 import model.results.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,10 +60,20 @@ public class ChessClient {
                 case "list" -> listGames();
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
+                case "clear" -> clearDatabases();
                 default -> help();
             };
         }catch(Exception e){
             return e.getMessage();
+        }
+    }
+
+    public String clearDatabases() throws Exception{
+        try{
+            server.clearDatabases(authToken);
+            return "All Databases Cleared";
+        }catch(Exception e ){
+            throw new ResponseException(ResponseException.Code.ServerError, "Error: something went wrong clearing database");
         }
     }
 
@@ -81,11 +88,11 @@ public class ChessClient {
             if(gamelist == null || id < 0 || id >= gamelist.size()){
                 throw new ResponseException(ResponseException.Code.BadRequest,"Error: game id is not valid, use list to see valid game ids");
             }
-
             ListResult gameResult = gamelist.get(id);
             int realGameId = gameResult.gameID();
-            server.observeGame(authToken, realGameId);
-            draw(System.out, gameResult.game(), true);
+            ObserveRequest request = new ObserveRequest(realGameId);
+            GameData game = server.observeGame(request, authToken);
+            draw(System.out, game.game(), true);
             return "Currently watching: " + gameResult.gameName();
         }catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to observe game " + e.getMessage());
@@ -131,7 +138,7 @@ public class ChessClient {
             }
             return sb.toString();
         }catch (Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to list games" + e.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest,"Error: failed to list games " + e.getMessage());
         }
     }
 

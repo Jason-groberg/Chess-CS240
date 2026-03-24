@@ -38,7 +38,6 @@ class ServiceTests {
         userDao.clear();
         authDao.clear();
         gameDao.clear();
-
         String hashedPassword = BCrypt.hashpw("password", BCrypt.gensalt());
         userDao.insertUser(new UserData("jason", hashedPassword, "groberg0@byu.edu"));
         token = UUID.randomUUID().toString();
@@ -137,6 +136,18 @@ class ServiceTests {
         ListService service = new ListService();
         String randomAuth = token;
         assertThrows(UnauthorizedException.class, () -> service.listGames(randomAuth));
+    }
+    @Test
+    @DisplayName("GetGame Test")
+    void getGameTest() throws Exception{
+        gameDao.createGame(new GameData(1234, "whitePlayer", "blackPlayer", "coolGame", new ChessGame()));
+        ListService service = new ListService();
+        RegisterService regService = new RegisterService();
+        RegisterResult regResult = regService.registerUser(new RegisterRequest("User", "number","someEmail"));
+        String authToken = regResult.authToken();
+        GameData game = service.getGame(1234, authToken);
+        assertEquals(game.gameID(), 1234);
+        
     }
 
     @Test

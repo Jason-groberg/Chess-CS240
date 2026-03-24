@@ -1,8 +1,5 @@
 package parser;
-import model.requests.CreateGameRequest;
-import model.requests.JoinGameRequest;
-import model.requests.LoginRequest;
-import model.requests.RegisterRequest;
+import model.requests.*;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
@@ -27,11 +24,12 @@ public class JsonDecoder {
         return SERIALIZER.fromJson(ctx.body(), CreateGameRequest.class);
     }
 
-    public static int getGameID(Context ctx){
+    public static ObserveRequest getGameID(Context ctx){
         record observeBody(int gameID){
         }
         observeBody body = SERIALIZER.fromJson(ctx.body(), observeBody.class);
-        return body.gameID;
+        ObserveRequest request = new ObserveRequest(body.gameID());
+        return request;
     }
 
     public static JoinGameRequest makeJoinRequest(Context ctx){

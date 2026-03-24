@@ -1,6 +1,7 @@
 package server;
 import chess.ChessGame;
 import model.GameData;
+import model.requests.ObserveRequest;
 import parser.JsonDecoder;
 import model.results.ListofListResult;
 import com.google.gson.Gson;
@@ -36,15 +37,16 @@ public class ListHandler {
 
         try{
             String authToken = JsonDecoder.getAuthToken(ctx);
-            int gameID = JsonDecoder.getGameID(ctx);
+            ObserveRequest request = JsonDecoder.getGameID(ctx);
+            int gameID = request.gameID();
             if(authToken==null){
                 throw new DataAccessException("Error: bad request");
             }
             ListService service = new ListService();
-
             GameData result = service.getGame(gameID, authToken);
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
+
         }catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
