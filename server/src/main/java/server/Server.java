@@ -1,12 +1,14 @@
 package server;
 import io.javalin.*;
+import server.websocket.WebSocketHandler;
 
 public class Server {
 
     private final Javalin javalin;
-
+    private final WebSocketHandler webSocketHandler;
 
     public Server(){
+        webSocketHandler = new WebSocketHandler();
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         createHandlers(javalin);
     }
@@ -26,6 +28,12 @@ public class Server {
         javalinServer.put("/game", JoinGameHandler::serviceJoinGame);
         javalinServer.get("/session",ListHandler::serviceGetGame);
 
+        javalinServer.ws("/ws", ws-> {
+            ws.onConnect( webSocketHandler::handleConnect);
+            ws.onMessage(webSocketHandler::handleMessage);
+            ws.onClose(webSocketHandler::handleClose);
+            ws.onError(ctx -> System.out.println("Error: " + ctx.error()));
+        });
     }
 
     public void stop() {
