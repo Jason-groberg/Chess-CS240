@@ -105,7 +105,7 @@ public class ChessClient {
             int realGameId = gameResult.gameID();
             ObserveRequest request = new ObserveRequest(realGameId);
             GameData game = server.observeGame(request, authToken);
-            draw(System.out, game.game(), true);
+            draw(System.out, game.game(), true, false, null);
             return "Currently watching: " + gameResult.gameName();
         } catch (NumberFormatException e) {
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
@@ -201,18 +201,18 @@ public class ChessClient {
             server.joinGame(request,authToken);
 
             boolean isWhite = (playerColor == ChessGame.TeamColor.WHITE);
-            draw(System.out, gameResult.game(), isWhite);
+            draw(System.out, gameResult.game(), isWhite, false, null);
             return "Joined Game Successfully.";
 
-        }catch(NumberFormatException e ){
+        }catch(NumberFormatException e){
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
-                    "Error: field <ID> got invalid ID.\n" + RESET_TEXT_COLOR +
-                    SET_TEXT_COLOR_BLUE + "Use command 'list' to see valid ids" + RESET_TEXT_COLOR);
+                    "Error: field [BLACK|WHITE] got invalid color.\n" + RESET_TEXT_COLOR +
+                    SET_TEXT_COLOR_BLUE + "Use command 'list' to see open player colors" + RESET_TEXT_COLOR);
         }
         catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
                     "Join failed.\n"
-                    + "Error:" + e.getMessage() + RESET_TEXT_COLOR);
+                    + e.getMessage() + RESET_TEXT_COLOR);
         }
 
     }

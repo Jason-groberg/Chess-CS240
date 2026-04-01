@@ -1,9 +1,9 @@
 package ui;
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
+
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class DrawChessBoard extends EscapeSequences {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
@@ -30,14 +30,29 @@ public class DrawChessBoard extends EscapeSequences {
     private static final String BLACK_PAWN = EscapeSequences.BLACK_PAWN;
     private static final String[] BLACK_FILES = new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
     public static ChessBoard board;
-
+    public static ChessGame currentGame;
     private static boolean isWhite;
+    private static boolean highlight;
+    private static ChessPosition piecePosition;
 
-    public static void draw(PrintStream out, ChessGame game, boolean isWhiteSide){
+
+    public static void draw(PrintStream out, ChessGame game, boolean isWhiteSide, boolean highlightOn, ChessPosition highlightPosition){
         out.print(ERASE_SCREEN);
-        board = game.getBoard();
+        currentGame = game;
+        board = currentGame.getBoard();
         isWhite = isWhiteSide;
-        drawChessBoard(out, board, isWhite);
+
+        if (highlightOn == true){
+            highlight = true;
+            piecePosition = highlightPosition;
+            drawChessBoard(out, board, isWhite, highlight);
+        }
+
+        else {
+            highlight = false;
+            drawChessBoard(out, board, isWhite, highlight);
+        }
+
         out.print(RESET_TEXT_COLOR);
         out.print(RESET_BG_COLOR);
         out.println();
@@ -56,25 +71,25 @@ public class DrawChessBoard extends EscapeSequences {
         out.println();
     }
 
-    private static void drawChessBoard(PrintStream out, ChessBoard board, boolean isWhite) {
+    private static void drawChessBoard(PrintStream out, ChessBoard board, boolean isWhite, boolean highlight) {
         drawHeaders(out, isWhite);
 
         if(isWhite) {
             for(int rank = BOARD_SIZE_IN_SQUARES; rank >=1; rank--){
-                drawChessRank(out, rank, board, isWhite);
+                drawChessRank(out, rank, board, isWhite, highlight);
             }
         }
         else{
             for(int rank = 1; rank <= BOARD_SIZE_IN_SQUARES; rank++){
-                drawChessRank(out, rank, board, isWhite);
+                drawChessRank(out, rank, board, isWhite, highlight);
             }
         }
         drawHeaders(out, isWhite);
         out.println();
     }
 
+    private static void drawChessRank(PrintStream out, int rank, ChessBoard board, boolean isWhite, boolean highlight) {
 
-    private static void drawChessRank(PrintStream out, int rank, ChessBoard board, boolean isWhite) {
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; squareRow++) {
 
             drawChessRankNumber(out, rank, squareRow);
@@ -83,14 +98,20 @@ public class DrawChessBoard extends EscapeSequences {
                 int col;
                 if(isWhite){col = boardCol;}
                 else{col = 9 - boardCol;}
-                setSquareColor(out, rank, col);
+                ChessPosition target = new ChessPosition(rank, col);
+
+                if(highlight){
+                    setSquareColorHighlight(out, rank, col);
+                }
+                else{setSquareColor(out, rank, col);}
 
                 if(squareRow ==1){
                     out.print("  ");
-                    ChessPiece piece = board.getPiece(new ChessPosition(rank, col));
+                    ChessPiece piece = board.getPiece(target);
                     out.print(findPiece(piece));
                     out.print("  ");
                 }
+
                 else{
                     out.print("  ");
                     out.print(EMPTY);
@@ -114,6 +135,40 @@ public class DrawChessBoard extends EscapeSequences {
         }
     }
 
+    private static void setSquareColorHighlight(PrintStream out, int rank, int col){
+        Collection<ChessMove> legalMoves = currentGame.validMoves(piecePosition);
+        Collection<ChessPosition> endMoves = new ArrayList<>();
+
+        if(!legalMoves.isEmpty()) {
+            for (ChessMove move : legalMoves) {
+                ChessPosition endMove = move.getEndPosition();
+                endMoves.add(endMove);
+            }
+        }
+
+        ChessPosition target = new ChessPosition(rank, col);
+        //piece position highlighted yellow
+        if(target.equals(piecePosition)){
+            out.print(SET_BG_COLOR_YELLOW);
+        }
+
+        //move should be highlighted
+        if(endMoves.contains(target)){
+            //target square has is empty and square is light
+            if((rank+col)%2==1){
+                out.print(SET_BG_COLOR_BLUE);
+            }
+            //square is dark
+            else{
+                out.print(SET_BG_COLOR_MAGENTA);
+            }
+            out.print(SET_TEXT_COLOR_BLACK);
+            out.print(SET_TEXT_BOLD);
+        }
+    else if (!target.equals(piecePosition)){
+            setSquareColor(out, rank, col);
+        }
+    }
 
     private static void setSquareColor(PrintStream out, int rank, int col){
         //square is white
