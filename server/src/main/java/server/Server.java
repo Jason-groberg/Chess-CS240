@@ -7,7 +7,7 @@ public class Server {
     private final Javalin javalin;
     private final WebSocketHandler webSocketHandler;
 
-    public Server(){
+    public Server() {
         webSocketHandler = new WebSocketHandler();
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         createHandlers(javalin);

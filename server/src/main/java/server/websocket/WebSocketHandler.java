@@ -1,8 +1,6 @@
 package server.websocket;
-
 import com.google.gson.Gson;
-import dataaccess.UnauthorizedException;
-import exception.ResponseException;
+import dataaccess.*;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -11,29 +9,31 @@ import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
-import webSocketMessages.Notification;
 import websocket.commands.UserGameCommand;
-
 import java.io.IOException;
+
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
-    private final ConnectionManager connections = new ConnectionManager();
+    private final ConnectionManager connections;
+    private final AuthDOA authDao;
+    private final GameDOA gameDao;
 
-    @Override
-    public void handleConnect(WsConnectContext ctx) {
-        System.out.println("Websocket connected");
-        ctx.enableAutomaticPings();
+    public WebSocketHandler() throws DataAccessException {
+            connections = new ConnectionManager();
+            authDao = new AuthSqlDao();
+            gameDao = new GameSqlDao();
     }
 
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         int gameId = -1;
-        Session session = ctx.session;
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             gameId = command.getGameID();
-            String username = getUsername(command.getAuthToken());
+            String authToken = command.getAuthToken();
+            String username = authDao.getAuth(authToken).userName();
+
             connections.add(gameId, session); //in connection manager
 
             switch (command.getCommandType()) {
@@ -56,9 +56,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
+    public void handleConnect(WsConnectContext ctx) {
+        System.out.println("Websocket connected");
+        ctx.enableAutomaticPings();
+    }
+
+    @Override
     public void handleClose(WsCloseContext ctx) {
         System.out.println("Websocket closed");
     }
+
 
     private void enter(String visitorName, Session session) throws IOException {
         connections.add(session);
