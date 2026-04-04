@@ -18,6 +18,7 @@ public class ChessGame {
     private TeamColor currentTurn;
     Collection<ChessMove> gameMoves;
     private Castle canCastle;
+    private boolean resigned;
 
     public ChessGame() {
         this.currentTurn = TeamColor.WHITE;
@@ -26,6 +27,7 @@ public class ChessGame {
         this.isInCheckmate = false;
         this.isInCheck = false;
         this.gameMoves = new ArrayList<>();
+        this.resigned = false;
         this.canCastle = new Castle(gameMoves, currentBoard);
     }
 
@@ -60,6 +62,14 @@ public class ChessGame {
         else {
             this.currentTurn = TeamColor.WHITE;
         }
+    }
+
+    public boolean isResigned() {
+        return resigned;
+    }
+
+    public void setResigned(boolean resigned) {
+        this.resigned = resigned;
     }
 
     /**
@@ -158,23 +168,31 @@ public class ChessGame {
         }
     }
 
+    public boolean gameOver(){
+        return resigned || isInStalemate(TeamColor.WHITE) || isInStalemate(TeamColor.BLACK) ||
+                isInCheckmate(TeamColor.BLACK) || isInCheckmate(TeamColor.WHITE);
+    }
+
     /**
      * Makes a move in a chess game
      * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if(gameOver()){
+            throw new InvalidMoveException("Error: game is over");
+        }
         canCastle.setGameBoard(this.currentBoard);
         ChessPiece piece = currentBoard.getPiece(move.getStartPosition());
         if (piece == null) {
-                throw new InvalidMoveException("No piece at position: " + move.getStartPosition());
+                throw new InvalidMoveException("Error: No piece at position: " + move.getStartPosition());
             }
         if (piece.getTeamColor() != currentTurn) {
-            throw new InvalidMoveException("not your turn, current game turn is " + currentTurn);
+            throw new InvalidMoveException("Error: not your turn, current game turn is " + currentTurn);
         }
         Collection<ChessMove> legalMoves = validMoves(move.getStartPosition());
         if (legalMoves.isEmpty() || !legalMoves.contains(move)) {
-            throw new InvalidMoveException("Requested Move is Illegal for Piece type: " + piece.getPieceType());
+            throw new InvalidMoveException("Error: Requested Move is Illegal for Piece type: " + piece.getPieceType());
         }
         if (move.getPromotionPiece() == null) {
             currentBoard.addPiece(move.getEndPosition(), piece);

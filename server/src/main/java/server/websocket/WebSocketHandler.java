@@ -112,10 +112,36 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             Notification notify = new Notification(notification);
             connections.broadcast(gameID, username, notify);
 
-        }catch(DataAccessException e){
-            sendError("Error: " + e.getMessage(), session);
-
         }catch(Exception e ){
+            sendError("Error: " + e.getMessage(), session);
+        }
+    }
+
+    private void resign(UserGameCommand command, String username, Session session) throws IOException{
+        try {
+            int gameID = command.getGameID();
+            GameData currGame = gameDao.getGame(gameID);
+            if(currGame==null){
+                sendError("Error: no game found with given ID:  " + gameID + ".", session);
+                return;
+            }
+
+            if(!username.equals(currGame.whiteUsername())||!username.equals(currGame.blackUsername())){
+                sendError("Error: only active players can resign,", session);
+                return;
+            }
+
+            if(currGame.game().gameOver()){
+                sendError("Error: game is already over", session);
+            }
+
+            currGame.game().setResigned(true);
+            gameDao.updateGame(gameID, currGame);
+
+            Notification notify = new Notification(username + " has resigned.");
+            connections.broadcast(gameID, null, notify);
+
+        } catch(Exception e ){
             sendError("Error: " + e.getMessage(), session);
         }
     }
@@ -131,9 +157,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private void resign(UserGameCommand command, String username, Session session){
 
-    }
 
 //    public void makeNoise(String petName, String sound) throws ResponseException {
 //        try {
