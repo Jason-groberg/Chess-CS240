@@ -4,18 +4,22 @@ import facade.ServerFacade;
 import model.GameData;
 import model.requests.*;
 import model.results.*;
+import websocketFacade.NotificationHandler;
+import websocketFacade.WebsocketFacade;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import static ui.DrawChessBoard.draw;
 import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient implements NotificationHandler {
     public enum State{
         SIGNEDIN,
-        SIGNEDOUT
+        SIGNEDOUT,
+        INGAME,
+        OBSERVER
     }
-
     public State getState(){
         return state;
     }
@@ -24,11 +28,35 @@ public class ChessClient {
     private final String serverUrl;
     private final ServerFacade server;
     private String authToken = null;
+    private boolean isWhite = true;
+    private int gameID = 0;
     private List<ListResult> gamelist = null;
+    private WebsocketFacade ws;
 
     public ChessClient(String url){
         server = new ServerFacade(url);
         serverUrl = url;
+        try {
+            ws = new WebsocketFacade(url, this);
+        }catch(ResponseException e ){
+            System.out.println("Error: failed to connect to websocket");
+        }
+    }
+
+    @Override
+    public void updateGame(ChessGame game){
+        draw(System.out, game, isWhite, false, null);
+    }
+
+    @Override
+    public void notify(String notification){
+        System.out.println(SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC + notification
+                + RESET_TEXT_COLOR + RESET_TEXT_ITALIC);
+    }
+    @Override
+    public void printError(String errorMessage){
+        System.out.println(SET_TEXT_COLOR_RED + SET_TEXT_BOLD + errorMessage
+                + RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT);
     }
 
     public String eval(String input){
@@ -39,8 +67,24 @@ public class ChessClient {
             return switch (state) {
                 case SIGNEDOUT -> preLoginEval(cmd, params);
                 case SIGNEDIN -> postLoginEval(cmd, params);
+                case INGAME, OBSERVER -> gamePlayEval(cmd, params);
             };
         }catch(Exception e){
+            return e.getMessage();
+        }
+    }
+
+    public String gamePlayEval(String cmd, String[] params){
+        try {
+            return switch(cmd) {
+                case "redraw" -> redraw();
+                case "leave" -> leaveGame();
+                case "resign" -> resignGame();
+                case "highlight" -> highlightMoves(params);
+                case "move" -> makeMove(params);
+                default -> help();
+            };
+        }catch(Exception e ){
             return e.getMessage();
         }
     }
@@ -106,6 +150,7 @@ public class ChessClient {
             ObserveRequest request = new ObserveRequest(realGameId);
             GameData game = server.observeGame(request, authToken);
             draw(System.out, game.game(), true, false, null);
+            state=State.OBSERVER;
             return "Currently watching: " + gameResult.gameName();
         } catch (NumberFormatException e) {
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
@@ -191,18 +236,20 @@ public class ChessClient {
                 String color = params[1];
                 if(color.equalsIgnoreCase("WHITE")){
                     playerColor=ChessGame.TeamColor.WHITE;
+                    isWhite = true;
                 }
                 else if(color.equalsIgnoreCase("BLACK")){
                     playerColor = ChessGame.TeamColor.BLACK;
+                    isWhite = false;
                 }
             }
 
             JoinGameRequest request = new JoinGameRequest(playerColor, realGameId);
             server.joinGame(request,authToken);
-
-            boolean isWhite = (playerColor == ChessGame.TeamColor.WHITE);
             draw(System.out, gameResult.game(), isWhite, false, null);
-            return "Joined Game Successfully.";
+            state = State.INGAME;
+
+            return "Joined Game Successfully. View in game commands by typing 'help'";
 
         }catch(NumberFormatException e){
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
@@ -284,6 +331,26 @@ public class ChessClient {
                         + "-to start a game.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
+        }
+        else if(state==State.OBSERVER){
+            return
+                WHITE_PAWN + "---- COMMANDS -----" + WHITE_PAWN + "\n" + SET_TEXT_COLOR_BLUE + "> highlight <rank[a-h]> <file[1-8]>" +
+                RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-highlight legal moves at given position\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> redraw " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to redraw current board.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> leave " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to stop observing game\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
+                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
+        }
+        else if(state==State.INGAME){
+            return
+                WHITE_PAWN + "---- COMMANDS -----" + WHITE_PAWN + "\n"
+                + SET_TEXT_COLOR_BLUE + "> move <rank[a-h]> <file[1-8]>" + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to make make your move.\n"
+                + SET_TEXT_COLOR_BLUE + "> highlight <rank[a-h]> <file[1-8]>" + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-highlight legal moves at given position.\n"
+                + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> redraw " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to redraw current board.\n"
+                + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> resign " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to resign the game.\n"
+                + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> leave " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to leave game.\n"
+                + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n"
+                + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
         }
         // user is singed in
         else{

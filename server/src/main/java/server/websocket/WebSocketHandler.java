@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
-import websocket.messages.Notification;
+import websocket.messages.NotificationMessage;
 import java.io.IOException;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
@@ -46,7 +46,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command, username, session);
-                case  MAKE_MOVE -> makeMove(command, username, session);
+                case MAKE_MOVE -> makeMove(command, username, session);
                 case LEAVE -> leaveGame(command, username, session);
                 case RESIGN -> resign(command, username, session);
             }
@@ -82,7 +82,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         session.getRemote().sendString(errorMessage);
     }
 
-
     private void connect(UserGameCommand command, String username, Session session) throws IOException {
         try{
             int gameID = command.getGameID();
@@ -108,7 +107,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 notification = String.format("%s joined game as an observer", username);
             }
 
-            Notification notify = new Notification(notification);
+            NotificationMessage notify = new NotificationMessage(notification);
             connections.broadcast(gameID, username, notify);
 
         }catch(Exception e ){
@@ -125,7 +124,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            if(!username.equals(currGame.whiteUsername())||!username.equals(currGame.blackUsername())) {
+            if(!username.equals(currGame.whiteUsername()) && !username.equals(currGame.blackUsername())) {
                 sendError("Error: only active players can resign,", session);
                 return;
             }
@@ -136,7 +135,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             currGame.game().setResigned(true);
             gameDao.updateGame(gameID, currGame);
 
-            Notification notify = new Notification(username + " has resigned.");
+            NotificationMessage notify = new NotificationMessage(username + " has resigned.");
             connections.broadcast(gameID, null, notify);
         } catch(Exception e){
             sendError("Error: " + e.getMessage(), session);
@@ -166,7 +165,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }else{
                 notification = String.format("Observer %s has stopped watching", username);
             }
-            Notification notify = new Notification(notification);
+            NotificationMessage notify = new NotificationMessage(notification);
             connections.broadcast(gameID, username, notify);
             connections.remove(gameID, username);
 
