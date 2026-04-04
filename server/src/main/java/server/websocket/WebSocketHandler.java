@@ -77,7 +77,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         if(message==null || !message.toUpperCase().contains("ERROR")){
             message = "unexpected error";
         }
-
         ErrorMessage error = new ErrorMessage(message);
         String errorMessage = new Gson().toJson(error);
         session.getRemote().sendString(errorMessage);
@@ -126,11 +125,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            if(!username.equals(currGame.whiteUsername())||!username.equals(currGame.blackUsername())){
+            if(!username.equals(currGame.whiteUsername())||!username.equals(currGame.blackUsername())) {
                 sendError("Error: only active players can resign,", session);
                 return;
             }
-
             if(currGame.game().gameOver()){
                 sendError("Error: game is already over", session);
             }
@@ -140,32 +138,44 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             Notification notify = new Notification(username + " has resigned.");
             connections.broadcast(gameID, null, notify);
-
-        } catch(Exception e ){
+        } catch(Exception e){
             sendError("Error: " + e.getMessage(), session);
         }
     }
 
     private void leaveGame(UserGameCommand command, String username, Session session) throws IOException {
-//        var message = String.format("%s left the shop", visitorName);
-//        var notification = new Notification(Notification.Type.DEPARTURE, message);
-//        connections.broadcast(session, notification);
-//        connections.remove(session);
+        try{
+            int gameID = command.getGameID();
+            if(!gameDao.gameExists(gameID)){
+                sendError("Error: could not find game with given id", session);
+            }
+            GameData currGame = gameDao.getGame(gameID);
+            GameData updatedGame;
+            String notification;
+            if(username.equals(currGame.blackUsername())){
+                updatedGame = new GameData(currGame.gameID(), currGame.whiteUsername(),
+                        null, currGame.gameName(), currGame.game());
+                notification = String.format("%s has left the game, black side is open to join", username);
+                gameDao.updateGame(gameID, updatedGame);
+            }
+            else if(username.equals(currGame.whiteUsername())){
+                updatedGame = new GameData(currGame.gameID(), null,
+                        currGame.blackUsername(), currGame.gameName(), currGame.game());
+                notification = String.format("%s has left the game, white side is open to join", username);
+                gameDao.updateGame(gameID, updatedGame);
+            }else{
+                notification = String.format("Observer %s has stopped watching", username);
+            }
+            Notification notify = new Notification(notification);
+            connections.broadcast(gameID, username, notify);
+            connections.remove(gameID, username);
+
+        }catch(Exception e ){
+            sendError("Error: "+ e.getMessage(), session);
+        }
     }
 
     private void makeMove(UserGameCommand command, String username, Session session){
 
     }
-
-
-
-//    public void makeNoise(String petName, String sound) throws ResponseException {
-//        try {
-//            var message = String.format("%s says %s", petName, sound);
-//            var notification = new Notification(Notification.Type.NOISE, message);
-//            connections.broadcast(null, notification);
-//        } catch (Exception ex) {
-//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-//        }
-//    }
 }
