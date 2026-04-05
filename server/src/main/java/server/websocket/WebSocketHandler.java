@@ -1,4 +1,6 @@
 package server.websocket;
+import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.websocket.WsCloseContext;
@@ -10,11 +12,13 @@ import io.javalin.websocket.WsMessageHandler;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import java.io.IOException;
+import java.util.Collection;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -46,16 +50,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command, username, session);
-                case MAKE_MOVE -> makeMove(command, username, session);
+                case MAKE_MOVE -> makeMove(ctx.message(), username, session);
                 case LEAVE -> leaveGame(command, username, session);
                 case RESIGN -> resign(command, username, session);
             }
 
         }catch(DataAccessException e){
             sendError("Error: unauthorized", ctx.session);
-        }
-        catch (IOException ex) {
-            sendError("Error: " + ex.getMessage(), ctx.session);
         }
         catch(Exception e){
             sendError("Error: " + e.getMessage(), ctx.session);
@@ -130,6 +131,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             if(currGame.game().gameOver()){
                 sendError("Error: game is already over", session);
+                return;
             }
 
             currGame.game().setResigned(true);
@@ -147,6 +149,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             int gameID = command.getGameID();
             if(!gameDao.gameExists(gameID)){
                 sendError("Error: could not find game with given id", session);
+                return;
             }
             GameData currGame = gameDao.getGame(gameID);
             GameData updatedGame;
@@ -174,7 +177,80 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void makeMove(UserGameCommand command, String username, Session session){
+    private void makeMove(String chessMoveCommand, String username, Session session) throws IOException{
+        try{
 
+            MoveCommand command = new Gson().fromJson(chessMoveCommand, MoveCommand.class);
+            int gameID = command.getGameID();
+            if(!gameDao.gameExists(gameID)){
+                sendError("Error: could not find game with given id", session);
+                return;
+            }
+
+            GameData currGameData = gameDao.getGame(gameID);
+            ChessGame currGame = currGameData.game();
+            ChessMove nextMove = command.getMove();
+
+            Collection<ChessMove> legalMoves = currGame.validMoves(nextMove.getStartPosition());
+            if(!legalMoves.contains(nextMove)) {
+                sendError("Error requested move is illegal.\n" +
+                        "Use 'highlight' <piecePosition> to see all legal moves", session);
+                return;
+            }
+            if(currGame.gameOver()){
+                sendError("Error: game is over",session);
+                return;
+            }
+            ChessGame.TeamColor playerColor = null;
+            String enemyPlayer = "his enemy";
+            if(currGameData.blackUsername().equals(username)){
+                playerColor = ChessGame.TeamColor.BLACK;
+                enemyPlayer = currGameData.whiteUsername();
+            }
+            if(currGameData.whiteUsername().equals(username)){
+                playerColor = ChessGame.TeamColor.WHITE;
+                enemyPlayer = currGameData.blackUsername();
+            }
+            if(playerColor == null){
+                sendError("Error: observers can not make moves", session);
+                return;
+            }
+            if(playerColor != currGame.getTeamTurn()){
+                sendError("Error: not your turn", session);
+                return;
+            }
+            if(playerColor  != currGame.getBoard().getPiece(nextMove.getStartPosition()).getTeamColor()){
+                sendError("Error: not your piece.",session);
+                return;
+            }
+
+            currGame.makeMove(nextMove);
+            gameDao.updateGame(gameID, currGameData);
+
+            String notification;
+            //places enemy in check notification
+            if(currGame.isInCheckmate(currGame.getTeamTurn())) {
+                notification = String.format("Checkmate! %s has won, sorry %s. :(", username, enemyPlayer);
+                connections.broadcast(gameID, null, new NotificationMessage(notification));
+            }
+            else if(currGame.isInCheck(currGame.getTeamTurn())){
+                notification = String.format("%s has placed %s in check.", username, enemyPlayer);
+                connections.broadcast(gameID, null, new NotificationMessage(notification));
+            }
+            else if(currGame.isInStalemate(currGame.getTeamTurn())){
+                notification = String.format("Woah that's stalemate good job %s I hope you weren't winning," +
+                        " now %s can't move and NO ONE WINS NOW ;)", username, enemyPlayer);
+                connections.broadcast(gameID, null, new NotificationMessage(notification));
+            }
+            else{
+                notification = String.format("%s has made his move. %s make your move when ready", username, enemyPlayer);
+                connections.broadcast(gameID, username, new NotificationMessage(notification));
+            }
+            connections.broadcast(gameID, null, new LoadGameMessage(currGame));
+
+        }
+        catch(Exception e){
+            sendError("Error: " + e.getMessage(), session);
+        }
     }
 }
