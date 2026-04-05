@@ -32,6 +32,7 @@ public class ChessClient implements NotificationHandler {
     private String authToken = null;
     private boolean isWhite = true;
     private int currGameID = 0;
+    private ChessGame currGame;
     private List<ListResult> gamelist = null;
     private WebsocketFacade ws;
 
@@ -47,6 +48,7 @@ public class ChessClient implements NotificationHandler {
 
     @Override
     public void updateGame(ChessGame game){
+        currGame = game;
         draw(System.out, game, isWhite, false, null);
     }
 
@@ -89,6 +91,10 @@ public class ChessClient implements NotificationHandler {
         }catch(Exception e ){
             return e.getMessage();
         }
+    }
+
+    public void redraw(){
+        draw(System.out, currGame, isWhite, false, null);
     }
 
     public String leaveGame()throws ResponseException{
@@ -157,9 +163,16 @@ public class ChessClient implements NotificationHandler {
             int realGameId = gameResult.gameID();
             ObserveRequest request = new ObserveRequest(realGameId);
             GameData game = server.observeGame(request, authToken);
+
+            ws.connect(authToken, realGameId);
+            state = State.OBSERVER;
+            currGame = game.game();
+            currGameID = realGameId;
+
             draw(System.out, game.game(), true, false, null);
-            state=State.OBSERVER;
+
             return "Currently watching: " + gameResult.gameName();
+
         } catch (NumberFormatException e) {
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
                     "Error: field <ID> got invalid ID.\n" + RESET_TEXT_COLOR +
@@ -256,6 +269,8 @@ public class ChessClient implements NotificationHandler {
             server.joinGame(request,authToken);
             draw(System.out, gameResult.game(), isWhite, false, null);
             state = State.INGAME;
+            currGame = gameResult.game();
+            currGameID = realGameId;
 
             return "Joined Game Successfully. View in game commands by typing 'help'";
 

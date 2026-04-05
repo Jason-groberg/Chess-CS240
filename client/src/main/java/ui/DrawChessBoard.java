@@ -41,7 +41,7 @@ public class DrawChessBoard extends EscapeSequences {
         board = currentGame.getBoard();
         isWhite = isWhiteSide;
 
-        if (highlightOn == true){
+        if (highlightOn){
             highlight = true;
             piecePosition = highlightPosition;
             drawChessBoard(out, board, isWhite, highlight);
