@@ -1,4 +1,6 @@
 package server.websocket;
+import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.websocket.WsCloseContext;
@@ -10,6 +12,7 @@ import io.javalin.websocket.WsMessageHandler;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -46,7 +49,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command, username, session);
-                case MAKE_MOVE -> makeMove(command, username, session);
+                case MAKE_MOVE -> makeMove(ctx.message(), username, session);
                 case LEAVE -> leaveGame(command, username, session);
                 case RESIGN -> resign(command, username, session);
             }
@@ -174,7 +177,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void makeMove(UserGameCommand command, String username, Session session){
+    private void makeMove(String chessMoveCommand, String username, Session session){
+        try{
+            MoveCommand command = new Gson().fromJson(chessMoveCommand, MoveCommand.class);
 
+            int gameID = command.getGameID();
+            if(!gameDao.gameExists(gameID)){
+                sendError("Error: could not find game with given id", session);
+            }
+            GameData currGameData = gameDao.getGame(gameID);
+            ChessGame currGame = currGameData.game();
+            ChessMove nextMove = command.getMove();
+            ChessGame.TeamColor playerColor = currGame.getTeamTurn();
+
+            if(command.getMove() )
+        }
     }
 }
