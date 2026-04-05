@@ -63,6 +63,11 @@ public class WebsocketFacade extends Endpoint {
         sendCommand(command);
     }
 
+    public void leaveGame(String authToken, Integer gameID) throws ResponseException{
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+        sendCommand(command);
+    }
+
 
     public void sendCommand(Object command) throws ResponseException{
         try {

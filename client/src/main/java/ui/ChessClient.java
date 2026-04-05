@@ -10,6 +10,8 @@ import websocketFacade.WebsocketFacade;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static ui.DrawChessBoard.currentGame;
 import static ui.DrawChessBoard.draw;
 import static ui.EscapeSequences.*;
 
@@ -29,7 +31,7 @@ public class ChessClient implements NotificationHandler {
     private final ServerFacade server;
     private String authToken = null;
     private boolean isWhite = true;
-    private int gameID = 0;
+    private int currGameID = 0;
     private List<ListResult> gamelist = null;
     private WebsocketFacade ws;
 
@@ -87,6 +89,12 @@ public class ChessClient implements NotificationHandler {
         }catch(Exception e ){
             return e.getMessage();
         }
+    }
+
+    public String leaveGame()throws ResponseException{
+        ws.leaveGame(authToken, currGameID);
+        state = State.SIGNEDIN;
+        return "Left game. Thanks for Playing";
     }
 
     public String preLoginEval(String cmd, String[] params){
