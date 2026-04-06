@@ -171,7 +171,7 @@ public class ChessClient implements NotificationHandler {
                 throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
                         "Error: not your piece.\n" + RESET_TEXT_COLOR);
             }
-            if(piece.getPieceType()==ChessPiece.PieceType.PAWN && (end.getRow()==8) || end.getRow()==1){
+            if(piece.getPieceType()==ChessPiece.PieceType.PAWN && (end.getRow()==8 || end.getRow()==1)){
                 Scanner scanner = new Scanner(System.in);
                 var result = "";
                 System.out.println("What Piece would you like to promote too.\nEnter: [Q|R|K|B] (defaults to queen if not specified)");
