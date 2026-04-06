@@ -1,4 +1,4 @@
-package websocketFacade;
+package websocketfacade;
 
 import chess.ChessGame;
 

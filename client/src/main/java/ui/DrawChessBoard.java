@@ -32,7 +32,7 @@ public class DrawChessBoard extends EscapeSequences {
     public static ChessGame currentGame;
     private static boolean isWhite;
     private static boolean highlight;
-    private static ChessPosition piecePosition;
+    private static ChessPosition piecePosition = null;
 
 
     public static void draw(PrintStream out, ChessGame game, boolean isWhiteSide, boolean highlightOn, ChessPosition highlightPosition){
@@ -147,7 +147,7 @@ public class DrawChessBoard extends EscapeSequences {
 
         ChessPosition target = new ChessPosition(rank, col);
         //piece position highlighted yellow
-        if(target.equals(piecePosition)){
+        if(target.equals(piecePosition)|| piecePosition==null){
             out.print(SET_BG_COLOR_YELLOW);
         }
 

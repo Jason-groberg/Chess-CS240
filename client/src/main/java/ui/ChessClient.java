@@ -1,16 +1,19 @@
 package ui;
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import facade.ServerFacade;
 import model.GameData;
 import model.requests.*;
 import model.results.*;
-import websocketFacade.NotificationHandler;
-import websocketFacade.WebsocketFacade;
+import websocketfacade.NotificationHandler;
+import websocketfacade.WebsocketFacade;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
+
 import static ui.DrawChessBoard.draw;
 import static ui.EscapeSequences.*;
 
@@ -126,13 +129,21 @@ public class ChessClient implements NotificationHandler {
 
     public String redraw(){
         draw(System.out, currGame, isWhite, false, null);
-        return "Start playing!";
+        return RESET_TEXT_COLOR + "Start playing!";
     }
 
     public String resignGame() throws ResponseException{
         try {
-            ws.resignGame(authToken, currGameID);
-            return "You have resigned";
+            Scanner scanner = new Scanner(System.in);
+            var result = "";
+            System.out.println("Confirm Resignation [Y/n]: ");
+            result = scanner.nextLine();
+            if(result.equalsIgnoreCase("y")|| result.equalsIgnoreCase("yes")){
+                ws.resignGame(authToken, currGameID);
+                return "You have resigned";
+            }
+            return "Its never over good luck!";
+
         }catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest, e.getMessage());
         }
@@ -148,7 +159,8 @@ public class ChessClient implements NotificationHandler {
             ChessPosition start = parsePosition(params[0]);
             ChessPosition end = parsePosition(params[1]);
             ChessMove gameMove = new ChessMove(start, end, null);
-            if(currGame.getBoard().getPiece(start)==null){
+            ChessPiece piece = currGame.getBoard().getPiece(start);
+            if(piece==null){
                 throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
                         "Error: no piece at given move start position\n" + RESET_TEXT_COLOR);
             }
@@ -161,6 +173,20 @@ public class ChessClient implements NotificationHandler {
                 throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
                         "Error: not your piece.\n" + RESET_TEXT_COLOR);
             }
+            if(piece.getPieceType()==ChessPiece.PieceType.PAWN && (end.getRow()==8) || end.getRow()==1){
+                Scanner scanner = new Scanner(System.in);
+                var result = "";
+                System.out.println("What Piece would you like to promote too.\nEnter: [Q|R|K|B] (defaults to queen if not specified)");
+                result = scanner.nextLine();
+                switch(result.toLowerCase()){
+                    case "q" -> gameMove = new ChessMove(start, end, ChessPiece.PieceType.QUEEN);
+                    case "r" -> gameMove = new ChessMove(start, end, ChessPiece.PieceType.ROOK);
+                    case "k" -> gameMove = new ChessMove(start, end , ChessPiece.PieceType.KNIGHT);
+                    case "b" -> gameMove = new ChessMove(start, end, ChessPiece.PieceType.BISHOP);
+                    default -> gameMove = new ChessMove(start, end, ChessPiece.PieceType.QUEEN);
+                }
+            }
+
             ws.makeMove(authToken, currGameID, gameMove);
             return String.format("Made move %s - %s.", params[0], params[1]);
         }catch (Exception e ){
@@ -189,6 +215,11 @@ public class ChessClient implements NotificationHandler {
 
         try{
             ChessPosition highlightPosition = parsePosition(params[0]);
+            ChessPiece piece = currGame.getBoard().getPiece(highlightPosition);
+            if(piece==null){
+                throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                        "Error: given chessBoard position is not a piece.\n" + RESET_TEXT_COLOR);
+            }
             draw(System.out, currGame, isWhite, true, highlightPosition);
 
         } catch(Exception e){
@@ -455,11 +486,15 @@ public class ChessClient implements NotificationHandler {
     private ChessPosition parsePosition(String pos) throws ResponseException{
         if(pos==null||pos.length() < 2){
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
-                    "Error: could not parse move.\n" + "Expected: <start/end> i.e. a1");
+                    "Error: could not parse move.\n" + "Expected: <start/end> i.e. a1"+RESET_TEXT_COLOR);
         }
         pos = pos.toLowerCase();
         int row = pos.charAt(1) - '0';
         int col = pos.charAt(0) - 'a' + 1;
+        if(row > 8 || row <0 || col >8 || col <0){
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Error: could not parse move.\n" + "Expected: <start/end> i.e. a1"+ RESET_TEXT_COLOR);
+        }
         return new ChessPosition(row, col);
     }
 

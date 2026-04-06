@@ -1,6 +1,7 @@
 package server.websocket;
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.websocket.WsCloseContext;
@@ -231,8 +232,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameDao.updateGame(gameID, currGameData);
 
             String notification;
+            String start = parseMove(nextMove.getStartPosition());
+            String end = parseMove(nextMove.getEndPosition());
             connections.broadcast(gameID, null, new LoadGameMessage(currGame));
-            notification = String.format("Notification: %s has made his move.", username);
+            notification = String.format("Notification: %s has made his move %s-%s.", username,start,end);
 
             //Check/checkmate/stalemate notifications
             if(currGame.isInCheckmate(currGame.getTeamTurn())) {
@@ -258,5 +261,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         catch(Exception e){
             sendError("Error: " + e.getMessage(), session);
         }
+    }
+    private String parseMove(ChessPosition pos){
+        char col = (char) ('a' + pos.getColumn() -1);
+        int row = pos.getRow();
+        return String.valueOf(col) + row;
     }
 }
