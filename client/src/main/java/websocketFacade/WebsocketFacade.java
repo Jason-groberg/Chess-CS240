@@ -40,11 +40,11 @@ public class WebsocketFacade extends Endpoint {
                         }
                         case ERROR -> {
                             ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
-                            notificationHandler.printError(errorMessage.getMessage());
+                            notificationHandler.printError(errorMessage.getErrorMessage());
                         }
                         case NOTIFICATION -> {
                             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
-                            notificationHandler.notify(notificationMessage.getNotification());
+                            notificationHandler.notify(notificationMessage.getMessage());
                         }
                     }
                 }

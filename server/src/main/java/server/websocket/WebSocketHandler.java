@@ -228,7 +228,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameDao.updateGame(gameID, currGameData);
 
             String notification;
-            //places enemy in check notification
+            connections.broadcast(gameID, null, new LoadGameMessage(currGame));
+            notification = String.format("%s has made his move. %s make your move when ready", username, enemyPlayer);
+            connections.broadcast(gameID, username, new NotificationMessage(notification));
+
+            //Check/checkmate/stalemate notifications
             if(currGame.isInCheckmate(currGame.getTeamTurn())) {
                 notification = String.format("Checkmate! %s has won, sorry %s. :(", username, enemyPlayer);
                 connections.broadcast(gameID, null, new NotificationMessage(notification));
@@ -242,12 +246,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         " now %s can't move and NO ONE WINS NOW ;)", username, enemyPlayer);
                 connections.broadcast(gameID, null, new NotificationMessage(notification));
             }
-            else{
-                notification = String.format("%s has made his move. %s make your move when ready", username, enemyPlayer);
-                connections.broadcast(gameID, username, new NotificationMessage(notification));
-            }
-            connections.broadcast(gameID, null, new LoadGameMessage(currGame));
-
         }
         catch(Exception e){
             sendError("Error: " + e.getMessage(), session);
