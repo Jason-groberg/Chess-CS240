@@ -9,6 +9,7 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
@@ -41,11 +42,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             String authToken = command.getAuthToken();
-            String username = authDao.getAuth(authToken).userName();
-            if(username == null){
-                throw new UnauthorizedException("Error : Unauthorized");
+            AuthData authData = authDao.getAuth(authToken);
+            if(authData == null){
+                sendError("Error: unauthorized", ctx.session);
+                return;
             }
 
+            String username = authData.userName();
             Session session = ctx.session;
 
             switch (command.getCommandType()) {
@@ -99,13 +102,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             String notification;
             if(username.equals(game.whiteUsername())){
-                notification = String.format("%s joined game as white", username);
+                notification = String.format("Notification: %s joined game as white", username);
             }
             else if(username.equals(game.blackUsername())){
-                notification = String.format("%s joined game as black", username);
+                notification = String.format("Notification: %s joined game as black", username);
             }
             else{
-                notification = String.format("%s joined game as an observer", username);
+                notification = String.format("Notification: %s joined game as an observer", username);
             }
 
             NotificationMessage notify = new NotificationMessage(notification);
@@ -229,23 +232,28 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             String notification;
             connections.broadcast(gameID, null, new LoadGameMessage(currGame));
-            notification = String.format("%s has made his move. %s make your move when ready", username, enemyPlayer);
-            connections.broadcast(gameID, username, new NotificationMessage(notification));
+            notification = String.format("Notification: %s has made his move.", username);
 
             //Check/checkmate/stalemate notifications
             if(currGame.isInCheckmate(currGame.getTeamTurn())) {
+                connections.broadcast(gameID, username, new NotificationMessage(notification));
                 notification = String.format("Checkmate! %s has won, sorry %s. :(", username, enemyPlayer);
                 connections.broadcast(gameID, null, new NotificationMessage(notification));
             }
             else if(currGame.isInCheck(currGame.getTeamTurn())){
+                connections.broadcast(gameID, username, new NotificationMessage(notification));
                 notification = String.format("%s has placed %s in check.", username, enemyPlayer);
                 connections.broadcast(gameID, null, new NotificationMessage(notification));
             }
             else if(currGame.isInStalemate(currGame.getTeamTurn())){
+                connections.broadcast(gameID, username, new NotificationMessage(notification));
                 notification = String.format("Woah that's stalemate good job %s I hope you weren't winning," +
                         " now %s can't move and NO ONE WINS NOW ;)", username, enemyPlayer);
                 connections.broadcast(gameID, null, new NotificationMessage(notification));
+            }else{
+                connections.broadcast(gameID, username, new NotificationMessage(notification));
             }
+
         }
         catch(Exception e){
             sendError("Error: " + e.getMessage(), session);

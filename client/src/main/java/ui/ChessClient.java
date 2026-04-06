@@ -46,14 +46,18 @@ public class ChessClient implements NotificationHandler {
     @Override
     public void updateGame(ChessGame game){
         currGame = game;
+        System.out.println();
         draw(System.out, game, isWhite, false, null);
+        printPrompt();
     }
 
     @Override
     public void notify(String message){
-        System.out.println( "\n" + SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC + message
+        System.out.println( SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC + "NOTIFICATION:\n" +  message
                 + RESET_TEXT_COLOR + RESET_TEXT_ITALIC);
+        printPrompt();
     }
+
     @Override
     public void printError(String errorMessage){
         System.out.println("\n" + SET_TEXT_COLOR_RED + SET_TEXT_BOLD + errorMessage
@@ -90,7 +94,6 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
-
     public String preLoginEval(String cmd, String[] params){
         try {
             return switch(cmd) {
@@ -123,7 +126,7 @@ public class ChessClient implements NotificationHandler {
 
     public String redraw(){
         draw(System.out, currGame, isWhite, false, null);
-        return "RedrawnBoard";
+        return "Start playing!";
     }
 
     public String resignGame() throws ResponseException{
@@ -145,6 +148,19 @@ public class ChessClient implements NotificationHandler {
             ChessPosition start = parsePosition(params[0]);
             ChessPosition end = parsePosition(params[1]);
             ChessMove gameMove = new ChessMove(start, end, null);
+            if(currGame.getBoard().getPiece(start)==null){
+                throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                        "Error: no piece at given move start position\n" + RESET_TEXT_COLOR);
+            }
+            ChessGame.TeamColor userColor = isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            if(userColor != currGame.getTeamTurn()){
+                throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                        "Error: not your turn\n" + RESET_TEXT_COLOR);
+            }
+            if(userColor != currGame.getBoard().getPiece(start).getTeamColor()){
+                throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                        "Error: not your piece.\n" + RESET_TEXT_COLOR);
+            }
             ws.makeMove(authToken, currGameID, gameMove);
             return String.format("Made move %s - %s.", params[0], params[1]);
         }catch (Exception e ){
@@ -217,20 +233,6 @@ public class ChessClient implements NotificationHandler {
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
                     "Observe failed.\n" +
                     "Error: failed to observe game " + e.getMessage() + RESET_TEXT_COLOR);
-        }
-    }
-
-    public String logout() throws ResponseException {
-        try{
-            server.logout(authToken);
-            authToken = null;
-            state = State.SIGNEDOUT;
-            return "Successfully Logged out\n";
-
-        }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
-                    "Logout failed.\n" +
-                    "Error: " + e.getMessage() + RESET_TEXT_COLOR);
         }
     }
 
@@ -319,7 +321,6 @@ public class ChessClient implements NotificationHandler {
                     "Join failed.\n"
                     + e.getMessage() + RESET_TEXT_COLOR);
         }
-
     }
 
     public String createGame(String... params) throws ResponseException{
@@ -341,6 +342,20 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
+    public String logout() throws ResponseException {
+        try{
+            server.logout(authToken);
+            authToken = null;
+            state = State.SIGNEDOUT;
+            return "Successfully Logged out.\n";
+
+        }catch(Exception e){
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Logout failed.\n" +
+                    "Error: " + e.getMessage() + RESET_TEXT_COLOR);
+        }
+    }
+
     public String register(String... params)throws Exception{
         if(params.length !=3){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
@@ -353,7 +368,8 @@ public class ChessClient implements NotificationHandler {
             RegisterResult result = server.register(request);
             authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format( WHITE_PAWN +"Welcome %s" + WHITE_PAWN + "\nStart playing with:\n%s", result.username(), help());
+            return String.format("\n" + SET_TEXT_BOLD + WHITE_PAWN +"----- Welcome %s -----" +
+                    WHITE_PAWN + RESET_TEXT_BOLD_FAINT + "\n" + WHITE_PAWN + " Start playing with:" + WHITE_PAWN + "\n%s ", result.username(), help());
         }catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
                     "Register failed\n" + e.getMessage() + RESET_TEXT_COLOR);
@@ -371,8 +387,8 @@ public class ChessClient implements NotificationHandler {
             LoginResult result = server.login(request);
             authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format(WHITE_PAWN +"Welcome %s" + WHITE_PAWN +
-                    "\nStart playing with:\n%s", result.username(), help());
+            return String.format("\n" + SET_TEXT_BOLD + WHITE_PAWN +"----- Welcome %s -----" + WHITE_PAWN +
+                    RESET_TEXT_BOLD_FAINT + "\n" + WHITE_PAWN + " Start playing with:" + WHITE_PAWN + "\n%s " , result.username(), help());
         } catch(Exception e){
             throw new ResponseException(ResponseException.Code.BadRequest,
                     SET_TEXT_COLOR_RED + "Login failed\n" + e.getMessage() + RESET_TEXT_COLOR);
@@ -388,7 +404,7 @@ public class ChessClient implements NotificationHandler {
                 SET_TEXT_COLOR_BLUE + "> login <USERNAME> <PASSWORD> " + RESET_TEXT_COLOR + SET_TEXT_ITALIC
                         + "-to start a game.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
-                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
+                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC + "\n";
         }
         else if(state==State.OBSERVER){
             return
@@ -397,7 +413,7 @@ public class ChessClient implements NotificationHandler {
                 SET_TEXT_COLOR_BLUE + "> redraw " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to redraw current board.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> leave " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to stop observing game\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
-                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
+                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC+ "\n";
         }
         else if(state==State.INGAME){
             return
@@ -408,7 +424,7 @@ public class ChessClient implements NotificationHandler {
                 + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> resign " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to resign the game.\n"
                 + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> leave " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to leave game.\n"
                 + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n"
-                + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
+                + RESET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC+ "\n";
         }
         // user is singed in
         else{
@@ -421,10 +437,11 @@ public class ChessClient implements NotificationHandler {
                 SET_TEXT_COLOR_BLUE + "> list " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to see all active games and ID's.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> logout " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to logout of application.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
-                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
+                SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC+ "\n";
         }
 
     }
+
     public String clearDatabases() throws Exception{
         try{
             server.clearDatabases();
@@ -444,6 +461,10 @@ public class ChessClient implements NotificationHandler {
         int row = pos.charAt(1) - '0';
         int col = pos.charAt(0) - 'a' + 1;
         return new ChessPosition(row, col);
+    }
+
+    private void printPrompt(){
+        System.out.print("\n"+"[" + state + "] " + ">>> ");
     }
 
     private void assertSignedIn() throws ResponseException {

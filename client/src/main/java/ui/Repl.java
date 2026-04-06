@@ -31,6 +31,14 @@ public class Repl {
 
     public void printPrompt(){
         String state = (client.getState() == ChessClient.State.SIGNEDOUT) ? "LOGGED OUT" : "LOGGED IN";
+
+        switch(client.getState()){
+            case ChessClient.State.SIGNEDOUT -> state = "LOGGED-OUT";
+            case ChessClient.State.SIGNEDIN -> state = "LOGGED-IN";
+            case ChessClient.State.INGAME -> state = "IN-GAME";
+            case ChessClient.State.OBSERVER -> state = "OBSERVER";
+        }
+
         System.out.print("\n"+"[" + state + "] " + ">>> ");
     }
 }
