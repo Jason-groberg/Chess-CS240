@@ -1,5 +1,8 @@
 package ui;
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import facade.ServerFacade;
 import model.GameData;
 import model.requests.*;
@@ -93,15 +96,6 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
-    public void redraw(){
-        draw(System.out, currGame, isWhite, false, null);
-    }
-
-    public String leaveGame()throws ResponseException{
-        ws.leaveGame(authToken, currGameID);
-        state = State.SIGNEDIN;
-        return "Left game. Thanks for Playing";
-    }
 
     public String preLoginEval(String cmd, String[] params){
         try {
@@ -133,6 +127,47 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
+    public String redraw(){
+        draw(System.out, currGame, isWhite, false, null);
+        return "RedrawnBoard";
+    }
+
+    public String resignGame() throws ResponseException{
+        try {
+            ws.resignGame(authToken, currGameID);
+            return "You have resigned";
+        }catch(Exception e){
+            throw new ResponseException(ResponseException.Code.BadRequest, e.getMessage());
+        }
+    }
+
+    public String makeMove(String... params) throws ResponseException{
+        if(params.length!=2){
+            throw new ResponseException(ResponseException.Code.BadRequest,SET_TEXT_COLOR_RED +
+                    "Error: command 'move' got unexpected fields\n" +
+                    "Expected: <start> <end> i.e. a2 a4" + RESET_TEXT_COLOR);
+        }
+        try {
+            ChessPosition start = parsePosition(params[0]);
+            ChessPosition end = parsePosition(params[1]);
+            ChessMove gameMove = new ChessMove(start, end, null);
+            ws.makeMove(authToken, currGameID, gameMove);
+            return String.format("Made move %s - %s.", start.toString(), end.toString());
+        }catch (Exception e ){
+            throw new ResponseException(ResponseException.Code.BadRequest, e.getMessage());
+        }
+    }
+
+    public String leaveGame()throws ResponseException{
+        try {
+            ws.leaveGame(authToken, currGameID);
+            state = State.SIGNEDIN;
+            return "Left game. Thanks for Playing";
+        }catch (Exception e){
+            throw new ResponseException(ResponseException.Code.BadRequest, e.getMessage());
+        }
+    }
+
     public String clearDatabases() throws Exception{
         try{
             server.clearDatabases();
@@ -143,10 +178,30 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
+    public String highlightMoves(String... params) throws ResponseException{
+        if(params.length != 1){
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Error: command 'highlight' got unexpected fields.\n" +
+                    "Expected: <piecePosition>" + RESET_TEXT_COLOR);
+        }
+
+        assertSignedIn();
+
+        try{
+            ChessPosition highlightPosition = parsePosition(params[0]);
+            draw(System.out, currGame, isWhite, true, highlightPosition);
+
+        } catch(Exception e){
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Highlight failed.\n" + e.getMessage() + RESET_TEXT_COLOR);
+        }
+        return "Highlighted moves";
+    }
+
     public String observeGame(String... params) throws Exception {
         if (params.length != 1) {
             throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
-                    "Error: command 'observe' got unexpected fields,\n" +
+                    "Error: command 'observe' got unexpected fields.\n" +
                     "Expected: <ID>" + RESET_TEXT_COLOR);
         }
         assertSignedIn();
@@ -388,6 +443,17 @@ public class ChessClient implements NotificationHandler {
                 SET_TEXT_COLOR_BLUE + "> quit " + RESET_TEXT_COLOR + SET_TEXT_ITALIC+ "-to exit application.\n" + RESET_TEXT_ITALIC +
                 SET_TEXT_COLOR_BLUE + "> help " + RESET_TEXT_COLOR + SET_TEXT_ITALIC + "-to display all commands." + RESET_TEXT_ITALIC;
         }
+    }
+
+    private ChessPosition parsePosition(String pos) throws ResponseException{
+        if(pos==null||pos.length() < 2){
+            throw new ResponseException(ResponseException.Code.BadRequest, SET_TEXT_COLOR_RED +
+                    "Error: could not parse move.\n" + "Expected: <start/end> i.e. a1");
+        }
+        pos = pos.toLowerCase();
+        int row = pos.charAt(1) - '0';
+        int col = pos.charAt(0) - 'a' + 1;
+        return new ChessPosition(row, col);
     }
 
     private void assertSignedIn() throws ResponseException {

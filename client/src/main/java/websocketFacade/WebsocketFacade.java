@@ -1,4 +1,5 @@
 package websocketFacade;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import ui.ResponseException;
@@ -58,6 +59,17 @@ public class WebsocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
+    public void resignGame(String authToken, Integer gameID) throws ResponseException{
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+        sendCommand(command);
+    }
+
+    public void makeMove(String authToken, Integer gameID, ChessMove move) throws ResponseException{
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+        sendCommand(command);
+    }
+
+
     public void connect(String authToken, Integer gameID) throws ResponseException{
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
         sendCommand(command);
@@ -67,7 +79,6 @@ public class WebsocketFacade extends Endpoint {
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
         sendCommand(command);
     }
-
 
     public void sendCommand(Object command) throws ResponseException{
         try {
